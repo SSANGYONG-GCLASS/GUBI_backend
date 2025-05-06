@@ -20,7 +20,7 @@ public class Review {
     private Long id;    // 리뷰번호
 
 
-    @JoinColumn(name = "fk_user_no", nullable = false)
+    @JoinColumn(name = "fk_user_no", referencedColumnName = "user_no", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private User user;  // 회원번호
 
