@@ -11,13 +11,14 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class Delivery {
     
+    // 배송지 시퀀스
     @Id
     @Column(name = "deliveryno", nullable = false, unique = true, updatable = false) // 데이터베이스 컬럼명, null 허용안됌,
     @SequenceGenerator(name = "SEQ_DELIVERY_GENERATOR", sequenceName = "delivery_seq", allocationSize = 1) // 진짜 시퀀스명, 사이즈크기
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_DELIVERY_GENERATOR") // 이게 진짜 시퀀스 만들어줌
     private Long id; //프라이머리키
     
-    // 배송지 시퀀스
+    //
     @Column(name = "fk_user_no", nullable = false) // not null
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // 케스케이트
     private User user;
@@ -34,17 +35,9 @@ public class Delivery {
     @Column(name = "receiver_tel", nullable = false)
     private String receiverTel;
     
-    // 우편번호
-    @Column(name = "zipcode", nullable = false)
-    private String zipcode;
-    
-    // 주소
-    @Column(name = "address", nullable = false)
-    private String address;
-    
-    // 상세 주소
-    @Column(name = "detail_address", nullable = false)
-    private String detailAddress;
+    // 주소클래스의 컬럼을 모두 가져옴(우편번호, 주소, 상세주소)
+    @Embedded
+    private Address address;
     
     // 배송 시 요청사항
     @Column(name = "memo")
