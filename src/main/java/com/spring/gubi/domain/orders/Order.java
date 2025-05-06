@@ -48,7 +48,7 @@ public class Order {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private String status; // 주문상태 (ENUM: 결제대기... 환불완료)
+    private OrderStatus status; // 주문상태 (ENUM: 결제대기... 환불완료)
     // PAYMENT_PENDING, ORDER_COMPLETED, ORDER_CANCELLED, SHIPPING, DELIVERED, PURCHASE_CONFIRMED, REFUND_REQUESTED, REFUND_COMPLETED
 
     @Column(name = "delivery_date")

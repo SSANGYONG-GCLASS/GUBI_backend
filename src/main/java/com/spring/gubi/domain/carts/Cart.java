@@ -15,7 +15,7 @@ public class Cart {
     @Column(name = "cartno", nullable = false, unique = true, updatable = false)
     @SequenceGenerator(name = "SEQ_CART_GENERATOR", sequenceName = "cart_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_CART_GENERATOR")
-    private Long cartno; // 장바구니 번호 (시퀀스)
+    private Long id; // 장바구니 번호 (시퀀스)
 
     @JoinColumn(name = "fk_optionno", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
