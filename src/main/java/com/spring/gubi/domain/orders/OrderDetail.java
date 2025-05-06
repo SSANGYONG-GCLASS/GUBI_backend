@@ -16,11 +16,11 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ORDER_DETAIL_GENERATOR")
     private Long id;
 
-    @JoinColumn(name = "fk_orderno", nullable = false)
+    @JoinColumn(name = "fk_orderno", referencedColumnName = "orderno", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Order order; // 주문 번호 (FK)
 
-    @JoinColumn(name = "fk_optionno", nullable = false)
+    @JoinColumn(name = "fk_optionno", referencedColumnName = "optionno", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Option fk_optionno; // 옵션 번호 (FK)
 

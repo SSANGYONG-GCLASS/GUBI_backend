@@ -17,11 +17,11 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_CART_GENERATOR")
     private Long id; // 장바구니 번호 (시퀀스)
 
-    @JoinColumn(name = "fk_optionno", nullable = false)
+    @JoinColumn(name = "fk_optionno", referencedColumnName = "optionno", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Option option; // 옵션 번호 (FK)
 
-    @JoinColumn(name = "fk_user_no", nullable = false)
+    @JoinColumn(name = "fk_user_no", referencedColumnName = "user_no", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private User user; // 회원 번호 (FK)
 

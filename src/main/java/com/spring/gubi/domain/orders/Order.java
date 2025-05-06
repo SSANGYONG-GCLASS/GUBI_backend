@@ -19,11 +19,11 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ORDER_GENERATOR")
     private Long id; // 주문 번호 (시퀀스 자동 증가)
 
-    @JoinColumn(name = "fk_user_no", nullable = false)
+    @JoinColumn(name = "fk_user_no", referencedColumnName = "user_no", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private User user; // 회원 번호 (FK)
 
-    @JoinColumn(name = "fk_deliveryno", nullable = false)
+    @JoinColumn(name = "fk_deliveryno", referencedColumnName = "deliveryno", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Delivery delivery; // 배송지 번호 (FK)
 
