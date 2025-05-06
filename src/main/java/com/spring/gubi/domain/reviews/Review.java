@@ -1,5 +1,7 @@
 package com.spring.gubi.domain.reviews;
 
+import com.spring.gubi.domain.product.Option;
+import com.spring.gubi.domain.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 

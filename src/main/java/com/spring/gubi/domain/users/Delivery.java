@@ -19,7 +19,7 @@ public class Delivery {
     private Long id; //프라이머리키
     
     //
-    @Column(name = "fk_user_no", nullable = false) // not null
+    @JoinColumn(name = "fk_user_no", nullable = false) // not null
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // 케스케이트
     private User user;
     

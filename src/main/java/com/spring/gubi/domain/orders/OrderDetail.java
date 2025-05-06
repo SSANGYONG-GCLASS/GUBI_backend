@@ -1,5 +1,6 @@
 package com.spring.gubi.domain.orders;
 
+import com.spring.gubi.domain.product.Option;
 import jakarta.persistence.*;
 import lombok.*;
 
