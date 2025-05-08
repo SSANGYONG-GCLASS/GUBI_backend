@@ -1,4 +1,8 @@
 
+select setval('category_seq', 1, false);
+select setval('prod_seq', 1, false);
+select setval('option_seq', 1, false);
+
 
 -- [시퀀스 생성] : user_no 시퀀스
 CREATE SEQUENCE user_seq START 1 INCREMENT 1;
@@ -85,6 +89,7 @@ CREATE INDEX IDX_login_fk_user_no ON login(fk_user_no);
 
 /* CATEGORY 테이블 생성 시작 */
 
+
 -- 1. 시퀀스 생성 (상품 번호용)
 CREATE SEQUENCE category_seq START 1 INCREMENT 1;
 
@@ -117,8 +122,11 @@ CREATE TABLE products (
     cnt     INTEGER NOT NULL ,                -- 재고
     delivery_price INTEGER NOT NULL ,         -- 배송비
     detail_html VARCHAR(255) NOT NULL,        -- 상품설명 html 경로
-    point_pct INTEGER NOT NULL                -- 포인트 적립비율 1~5%
+    point_pct INTEGER NOT NULL,               -- 포인트 적립비율 1~5%
+
+    status VARCHAR(255)                       -- 상품 판매 상태
 );
+
 
 -- 제약 조건
 ALTER TABLE products
@@ -128,6 +136,31 @@ ALTER TABLE products
 
 
 /* PRODUCTS 테이블 생성 끝 */
+
+--------------------------------------------------------------------------------
+
+/* PRODUCT_IMG 테이블 생성 시작 */
+
+-- 1. 시퀀스 생성 (상품 번호용)
+CREATE SEQUENCE prodimg_seq START 1 INCREMENT 1;
+
+-- 2. 테이블 생성
+CREATE TABLE product_img (
+    product_imgno BIGINT PRIMARY KEY DEFAULT nextval('prodimg_seq'),     -- 상품 이미지 번호 (PK, 시퀀스 기반)
+    fk_productno BIGINT NOT NULL,            -- 상품 번호 (FK)
+    img varchar(255)                        -- 이미지
+);
+
+
+-- 제약 조건
+ALTER TABLE product_img
+    ADD CONSTRAINT FK_product_img_fk_productno
+        FOREIGN KEY (fk_productno) REFERENCES products(productno)
+            ON DELETE CASCADE;
+
+
+/* PRODUCT_IMG 테이블 생성 끝 */
+
 
 --------------------------------------------------------------------------------
 
