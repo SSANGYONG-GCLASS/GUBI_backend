@@ -64,3 +64,8 @@ out/
 
 # Log file
 *.log
+
+### etc ###
+/src/main/resources/application-test.yml
+src/main/generated
+build/generated
