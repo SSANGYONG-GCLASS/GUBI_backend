@@ -2,6 +2,7 @@ package com.spring.gubi.domain.reviews;
 
 import com.spring.gubi.domain.product.Option;
 import com.spring.gubi.domain.users.User;
+import com.spring.gubi.dto.reviews.UpdateReviewRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,4 +46,18 @@ public class Review {
 
     @Column(name = "img")
     private String img;     // 리뷰 이미지
+
+
+
+    // 리뷰 수정 메소드
+    public void updateReview(UpdateReviewRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.score = request.getScore();
+    }
+
+    // 리뷰 이미지 수정 메소드
+    public void updateImg(String img) {
+        this.img = img;
+    }
 }

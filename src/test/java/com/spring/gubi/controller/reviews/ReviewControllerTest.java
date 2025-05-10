@@ -211,4 +211,12 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.img").value(Matchers.endsWith(".png")));
     }// end of void 이미지있는_리뷰작성_성공 () throws Exception ------------------
 
+
+    @DisplayName("이미지 없는 리뷰 수정")
+    @Test
+    void 이미지_없는_리뷰_수정_테스트() {
+
+    }// end of void 이미지_없는_리뷰_수정_테스트() --------------
+
+
 }
