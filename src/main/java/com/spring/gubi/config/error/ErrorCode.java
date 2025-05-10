@@ -16,8 +16,10 @@ public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U1", "존재하지 않는 회원입니다."),
 
-    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OP1", "존재하지 않는 상품 옵션입니다.");
-
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OP1", "존재하지 않는 상품 옵션입니다."),
+    
+    DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "DE1", "존재하지 않는 배송지입니다.");
+    
     private final String message;
     private final String code;
     private final HttpStatus status;

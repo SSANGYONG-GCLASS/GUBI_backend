@@ -1,5 +1,6 @@
 package com.spring.gubi.domain.users;
 
+import com.spring.gubi.dto.users.UpdateDeliveryRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,9 +19,9 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_DELIVERY_GENERATOR") // 이게 진짜 시퀀스 만들어줌
     private Long id; //프라이머리키
     
-    //
-    @JoinColumn(name = "fk_user_no", nullable = false) // not null
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // 케스케이트
+    // 수령인 유저 번호
+    @JoinColumn(name = "fk_user_no", referencedColumnName = "user_no", nullable = false) // not null
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // 케스케이트(이거 알아봐야함)
     private User user;
     
     // 배송지명
@@ -47,6 +48,22 @@ public class Delivery {
     @Column(name = "is_default", nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryDefault isDefault; // 기본배송지 여부 (ENUM: DEFAULT, NONE)
+    
+    
+    
+    // 배송지 수정을 위한 메소드
+    public void updateDelivery(UpdateDeliveryRequest request) {
+        
+        // Address 생성자 객체 선언
+        Address address = new Address(request.getZipcode(), request.getAddress(), request.getDetailAddress());
+        
+        this.deliveryName = request.getDeliveryName();
+        this.receiver = request.getReceiver();
+        this.receiverTel = request.getReceiverTel();
+        this.address = address;
+        this.memo = request.getMemo();
+        this.isDefault = DeliveryDefault.valueOf(request.getIsDefault());
+    }//
     
     
     // fk_user_no BIGINT NOT NULL,                                     -- 외래키: users.user_no

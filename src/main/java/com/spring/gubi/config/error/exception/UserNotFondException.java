@@ -14,7 +14,5 @@ public class UserNotFondException extends BusinessBaseException {
         super(ErrorCode.USER_NOT_FOUND);
     }
 
-    public UserNotFondException(String message) {
-        super(message, ErrorCode.USER_NOT_FOUND);
-    }
+    public UserNotFondException(String message) {super(message, ErrorCode.USER_NOT_FOUND);}
 }
