@@ -12,7 +12,9 @@ import com.spring.gubi.dto.reviews.WriteReviewResponse;
 import com.spring.gubi.repository.products.OptionRepository;
 import com.spring.gubi.repository.reviews.ReviewRepository;
 import com.spring.gubi.repository.users.UserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
@@ -32,6 +35,26 @@ public class ReviewService {
 
     @Value("${image-dir.review}")
     String uploadPath;
+
+    // 파일 업로드 절대 경로 시정
+    @PostConstruct
+    private void initUploadPath() {
+        File path = new File(uploadPath);
+
+        // 상대 경로일 경우만 절대 경로로 변환
+        if (!path.isAbsolute()) {
+            String baseDir = System.getProperty("user.dir");
+            path = new File(baseDir, uploadPath);
+        }
+
+        uploadPath = path.getAbsolutePath(); // 변환 완료
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs(); // 디렉토리 생성
+        }
+
+        log.info("최종 이미지 저장 경로: {}", uploadPath);
+    }// end of private void initUploadPath() ----------------------
 
     // 리뷰 등록
     @Transactional
@@ -64,6 +87,7 @@ public class ReviewService {
     @Transactional
     public WriteReviewResponse update(UpdateReviewRequest request, MultipartFile img) throws IOException {
 
+
         // 기존 리뷰 정보 조회
         Review review = reviewRepository.findById(request.getId())
                             .orElseThrow(ReviewNotFoundException::new);
@@ -81,6 +105,12 @@ public class ReviewService {
 
         // 첨부 이미지가 존재할 경우
         if (img != null && !img.isEmpty()) {
+
+            // 기존 이미지가 있다면 삭제
+            if (review.getImg() != null) {
+                deleteFile(review.getImg());
+            }
+
             // 이미지 서버에 저장
             String newFileName = uploadFile(img);
             review.updateImg(newFileName);
@@ -94,6 +124,7 @@ public class ReviewService {
 
     // 파일 업로드 메소드
     private String uploadFile(MultipartFile file) throws IOException {
+
         String originalFilename = file.getOriginalFilename();    // 원본 파일명
 
         // 확장자가 없는 경우 기본확장자 지정
@@ -113,6 +144,9 @@ public class ReviewService {
             directory.mkdirs();
         }
 
+        log.info("이미지 저장 경로: {}", uploadPath);
+        log.info("최종 저장 경로: {}", uploadPath + "/" + newFileName);
+
         File saveFile = new File(uploadPath + File.separator + newFileName);
         file.transferTo(saveFile);       // 서버에 파일 저장
 
@@ -122,9 +156,15 @@ public class ReviewService {
 
     // 파일 삭제 메소드
     private void deleteFile(String fileName) {
+
         File file = new File(uploadPath + File.separator + fileName);
         if (file.exists()) {
             file.delete();
         }
+
+        log.info("삭제된 파일명: {}", fileName + " (" + uploadPath + "/" + fileName + "");
     }// end of private void deleteFile(String fileName) --------------------
+
+
+
 }

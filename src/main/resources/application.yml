@@ -25,6 +25,11 @@ spring:
     open-in-view: false # 성능 하락 방지
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
 server:
   port: ${SERVER_PORT:8080}
 

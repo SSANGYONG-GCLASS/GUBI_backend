@@ -1,5 +1,6 @@
 package com.spring.gubi.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -16,5 +17,17 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true)
                 .maxAge(3600);
+    }
+
+
+    // 파일 업로드 용
+    @Value("${image-dir.review}")
+    private String uploadPath;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry
+                .addResourceHandler("/uploads/reviews/**")
+                .addResourceLocations("file:" + uploadPath + "/");
     }
 }
