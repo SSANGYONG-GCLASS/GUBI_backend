@@ -13,12 +13,10 @@ import java.util.List;
 public class GetCartsResponse {
 
     private List<GetCartResponse> carts;
-//    private List<Cart> carts;
     Pagination pagination;
 
     public GetCartsResponse(Page<Cart> carts, Pagination pagination) {
         this.carts = carts.getContent().stream().map(GetCartResponse::new).toList();
-//        this.carts = carts.getContent();
         this.pagination = pagination;
     }
 }
