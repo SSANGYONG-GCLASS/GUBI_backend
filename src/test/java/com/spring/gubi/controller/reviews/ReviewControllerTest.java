@@ -1,8 +1,10 @@
 package com.spring.gubi.controller.reviews;
 
+import com.spring.gubi.domain.reviews.Review;
 import com.spring.gubi.domain.users.User;
 import com.spring.gubi.domain.users.UserRole;
 import com.spring.gubi.domain.users.UserStatus;
+import com.spring.gubi.repository.reviews.ReviewRepository;
 import com.spring.gubi.repository.users.UserRepository;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,13 +13,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,6 +38,8 @@ class ReviewControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     // 테스트 시작 전 유저 정보 세팅
 //    @BeforeEach
@@ -88,12 +96,12 @@ class ReviewControllerTest {
         String title = "제품 후기입니다..";
 
         // 이미지
-//        MockMultipartFile img = new MockMultipartFile(
-//                "img", "test.png", MediaType.IMAGE_PNG_VALUE, "img".getBytes()
-//        );
         MockMultipartFile img = new MockMultipartFile(
-                "img", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "img".getBytes()
+                "img", "test.png", MediaType.IMAGE_PNG_VALUE, "img".getBytes()
         );
+//        MockMultipartFile img = new MockMultipartFile(
+//                "img", "test.jpg", MediaType.IMAGE_JPEG_VALUE, "img".getBytes()
+//        );
 
         // Form 전송 데이터
         MockMultipartFile data = new MockMultipartFile(
@@ -210,5 +218,76 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.title").value(title))
                 .andExpect(jsonPath("$.img").value(Matchers.endsWith(".png")));
     }// end of void 이미지있는_리뷰작성_성공 () throws Exception ------------------
+
+
+    @DisplayName("이미지 없는 리뷰 수정")
+    @Test
+    void 이미지_없는_리뷰_수정_테스트() throws Exception {
+        // given: 테스트 데이터 준비
+
+        String title = "제품 후기입니다..";
+
+        // Form 전송 데이터
+        MockMultipartFile data = new MockMultipartFile(
+                "data", "", MediaType.APPLICATION_JSON_VALUE,
+                """
+                    {
+                        "id": 38,
+                        "title": "%s",
+                        "content": "너무 좋네요",
+                        "score": 5
+                    }
+                """.formatted(title).getBytes());
+
+
+        // when + then: 컨트롤러 테스트(응답 받은 title 이 동일한지 검증, 등록한 이미지가 없어야 함)
+        mockMvc.perform(multipart(HttpMethod.PUT, "/api/reviews")
+                        .file(data)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.img").isEmpty());
+    }// end of void 이미지_없는_리뷰_수정_테스트() throws Exception --------------
+
+
+    @DisplayName("이미지 포함 리뷰 수정")
+    @Test
+    void 기존이미지가_있는_리뷰_수정_테스트() throws Exception {
+        // given: 테스트 데이터 준비
+        Review review = reviewRepository.findById(37L).orElseThrow();
+
+        String oldImg = review.getImg();
+
+        String title = "제품 후기입니다..";
+
+        // 이미지
+        MockMultipartFile img = new MockMultipartFile(
+                "img", "test.png", MediaType.IMAGE_PNG_VALUE, "img".getBytes()
+        );
+
+        // Form 전송 데이터
+        MockMultipartFile data = new MockMultipartFile(
+                "data", "", MediaType.APPLICATION_JSON_VALUE,
+                """
+                    {
+                        "id": 37,
+                        "title": "%s",
+                        "content": "너무 좋네요",
+                        "score": 5
+                    }
+                """.formatted(title).getBytes());
+
+
+        // when + then: 컨트롤러 테스트(응답 받은 title 이 동일한지 검증, 등록한 이미지가 없어야 함)
+        mockMvc.perform(multipart(HttpMethod.PUT, "/api/reviews")
+                        .file(img)
+                        .file(data)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.img").value(Matchers.matchesPattern("^[a-z0-9]{32}\\.png$")))
+                .andExpect(jsonPath("$.img").value(Matchers.not(oldImg)));
+    }// end of void 이미지_포함_리뷰_수정_테스트() throws Exception --------------
+
 
 }

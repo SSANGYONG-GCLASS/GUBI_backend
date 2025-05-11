@@ -1,10 +1,12 @@
 package com.spring.gubi.service.reviews;
 
 import com.spring.gubi.config.error.exception.OptionNotFoundException;
+import com.spring.gubi.config.error.exception.ReviewNotFoundException;
 import com.spring.gubi.config.error.exception.UserNotFondException;
 import com.spring.gubi.domain.product.Option;
 import com.spring.gubi.domain.reviews.Review;
 import com.spring.gubi.domain.users.User;
+import com.spring.gubi.dto.reviews.UpdateReviewRequest;
 import com.spring.gubi.dto.reviews.WriteReviewRequest;
 import com.spring.gubi.dto.reviews.WriteReviewResponse;
 import com.spring.gubi.repository.products.OptionRepository;
@@ -163,5 +165,20 @@ class ReviewServiceTest {
         // when + then
         assertThrows(OptionNotFoundException.class, () -> reviewService.save(request, null));
     }// end of void 존재하지_않는_옵션_예외() throws Exception -------------------------
+
+
+    @DisplayName("존재하지 않는 리뷰 예외")
+    @Test
+    void 존재하지_않는_리뷰_예외() throws Exception {
+        // given: 기존에 등록 리뷰, 수정 된 리뷰
+
+        // 수정 객체 생성
+        UpdateReviewRequest updateRequest = new UpdateReviewRequest();
+        updateRequest.setId(9999L);
+
+        // when + then
+        assertThrows(ReviewNotFoundException.class, () -> reviewService.update(updateRequest, multipartFile));
+
+    }// end of void 존재하지_않는_리뷰_예외() throws Exception -----------------
 
 }

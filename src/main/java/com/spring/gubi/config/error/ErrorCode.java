@@ -18,7 +18,11 @@ public enum ErrorCode {
 
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OP1", "존재하지 않는 상품 옵션입니다."),
 
+
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R1", "존재하지 않는 리뷰입니다."),
+
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "C1", "존재하지 않는 장바구니입니다.");
+
 
     private final String message;
     private final String code;
