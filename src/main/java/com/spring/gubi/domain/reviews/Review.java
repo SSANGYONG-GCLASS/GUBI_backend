@@ -2,6 +2,7 @@ package com.spring.gubi.domain.reviews;
 
 import com.spring.gubi.domain.product.Option;
 import com.spring.gubi.domain.users.User;
+import com.spring.gubi.dto.reviews.UpdateReviewRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +24,7 @@ public class Review {
 
 
     @JoinColumn(name = "fk_user_no", referencedColumnName = "user_no", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;  // 회원번호
 
     @JoinColumn(name = "fk_optionno", referencedColumnName = "optionno", nullable = false)
@@ -45,4 +46,18 @@ public class Review {
 
     @Column(name = "img")
     private String img;     // 리뷰 이미지
+
+
+
+    // 리뷰 수정 메소드
+    public void updateReview(UpdateReviewRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.score = request.getScore();
+    }
+
+    // 리뷰 이미지 수정 메소드
+    public void updateImg(String img) {
+        this.img = img;
+    }
 }
