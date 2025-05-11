@@ -18,6 +18,8 @@ public enum ErrorCode {
 
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OP1", "존재하지 않는 상품 옵션입니다."),
 
+    DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "DE1", "존재하지 않는 배송지입니다."),
+
 
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R1", "존재하지 않는 리뷰입니다."),
 
