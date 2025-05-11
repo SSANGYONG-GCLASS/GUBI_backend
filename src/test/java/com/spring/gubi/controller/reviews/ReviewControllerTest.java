@@ -22,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -289,5 +289,40 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.img").value(Matchers.not(oldImg)));
     }// end of void 이미지_포함_리뷰_수정_테스트() throws Exception --------------
 
+
+
+    @DisplayName("이미지가 없는 리뷰 삭제")
+    @Test
+    void 이미지가_없는_리뷰_삭제() throws Exception {
+        // given
+        Review review = reviewRepository.findById(38L).orElseThrow();
+
+        // when + then
+        mockMvc.perform(delete("/api/reviews/{id}", review.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("후기가 삭제되었습니다."));
+
+
+        Optional<Review> deleted = reviewRepository.findById(review.getId());
+        assertThat(deleted).isEmpty();
+
+    }// end of void 이미지가_없는_리뷰_삭제() throws Exception --------------------
+
+
+    @DisplayName("이미지가 있는 리뷰 삭제")
+    @Test
+    void 이미지가_있는_리뷰_삭제() throws Exception {
+        // given
+        Review review = reviewRepository.findById(37L).orElseThrow();
+
+        // when + then
+        mockMvc.perform(delete("/api/reviews/{id}", review.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("후기가 삭제되었습니다."));
+
+        Optional<Review> deleted = reviewRepository.findById(review.getId());
+        assertThat(deleted).isEmpty();
+
+    }// end of void 이미지가_있는_리뷰_삭제() throws Exception --------------------
 
 }
