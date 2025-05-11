@@ -1,5 +1,7 @@
 package com.spring.gubi.controller.reviews;
 
+import com.spring.gubi.domain.reviews.Review;
+import com.spring.gubi.dto.reviews.ReviewDetailResponse;
 import com.spring.gubi.dto.reviews.UpdateReviewRequest;
 import com.spring.gubi.dto.reviews.WriteReviewRequest;
 import com.spring.gubi.dto.reviews.WriteReviewResponse;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -46,5 +49,22 @@ public class ReviewController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }// end of public ResponseEntity<WriteReviewResponse> updateReview(...) ----------------
+
+
+    // 리뷰 삭제
+    @DeleteMapping("/api/reviews/{id}")
+    public ResponseEntity<Map<String, String>> deleteReview(@PathVariable("id") Long id) {
+        reviewService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "후기가 삭제되었습니다."));
+    }// end of public ResponseEntity<Map<String, String>> deleteReview(@PathVariable("id") Long id) -----------------------
+
+
+    // 한 개 리뷰 조회
+    @GetMapping("/api/reviews/{id}")
+    public ResponseEntity<ReviewDetailResponse> getReivewDetail(@PathVariable("id") Long id) {
+        Review review = reviewService.findById(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ReviewDetailResponse(review));
+    }// end of public ResponseEntity<ReviewDetailResponse> getReivewDetail(@PathVariable("id") Long id) ------------------
 
 }

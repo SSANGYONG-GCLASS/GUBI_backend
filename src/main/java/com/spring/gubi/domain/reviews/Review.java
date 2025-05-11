@@ -24,7 +24,7 @@ public class Review {
 
 
     @JoinColumn(name = "fk_user_no", referencedColumnName = "user_no", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;  // 회원번호
 
     @JoinColumn(name = "fk_optionno", referencedColumnName = "optionno", nullable = false)

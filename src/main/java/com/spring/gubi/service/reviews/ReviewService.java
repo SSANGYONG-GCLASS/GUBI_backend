@@ -37,90 +37,24 @@ public class ReviewService {
     String uploadPath;
 
     // 파일 업로드 절대 경로 시정
-    @PostConstruct
-    private void initUploadPath() {
-        File path = new File(uploadPath);
-
-        // 상대 경로일 경우만 절대 경로로 변환
-        if (!path.isAbsolute()) {
-            String baseDir = System.getProperty("user.dir");
-            path = new File(baseDir, uploadPath);
-        }
-
-        uploadPath = path.getAbsolutePath(); // 변환 완료
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs(); // 디렉토리 생성
-        }
-
-        log.info("최종 이미지 저장 경로: {}", uploadPath);
-    }// end of private void initUploadPath() ----------------------
-
-    // 리뷰 등록
-    @Transactional
-    public WriteReviewResponse save(WriteReviewRequest request, MultipartFile img) throws IOException {
-        // 회원 정보와 상품 정보를 가져와야 함.
-
-        // 회원 검증 로직 (추후 변경)
-        User user = userRepository.findById(request.getUserNo())
-                                .orElseThrow(UserNotFondException::new);    // 기본 에러 메시지
-//                                .orElseThrow(() -> new UserNotFondException("회원 정보를 찾을 수 없습니다."));  // 커스텀 에러 메시지
-
-        // 상품 검증 로직 (추후 변경)
-        Option option = optionRepository.findById(request.getOptionNo())
-                                .orElseThrow(OptionNotFoundException::new);
-//                                .orElseThrow(() -> new OptionNotFoundException("옵션 정보를 찾을 수 없습니다."));
-        // 첨부 이미지가 존재할 경우
-        if (img != null && !img.isEmpty()) {
-            // 이미지 서버에 저장
-            String newFileName = uploadFile(img);
-            request.setImg(newFileName);
-        }
-
-        Review review = reviewRepository.save(request.toEntity(user, option));
-
-        return new WriteReviewResponse(review);
-    }// end of public WriteReviewResponse save(WriteReviewRequest request, MultipartFile img) throws IOException -------------------
-
-
-    // 리뷰 수정
-    @Transactional
-    public WriteReviewResponse update(UpdateReviewRequest request, MultipartFile img) throws IOException {
-
-
-        // 기존 리뷰 정보 조회
-        Review review = reviewRepository.findById(request.getId())
-                            .orElseThrow(ReviewNotFoundException::new);
-
-        // 작성자 일치 여부 확인 (추후)
-
-        // 기존 이미지 삭제: 수정 시 이미지가 없고, 기존 이미지가 있었던 경우
-        if ((img == null || img.isEmpty()) && review.getImg() != null) {
-            deleteFile(review.getImg());
-            review.updateImg(null);
-        }
-
-
-        // 정보 업데이트
-
-        // 첨부 이미지가 존재할 경우
-        if (img != null && !img.isEmpty()) {
-
-            // 기존 이미지가 있다면 삭제
-            if (review.getImg() != null) {
-                deleteFile(review.getImg());
-            }
-
-            // 이미지 서버에 저장
-            String newFileName = uploadFile(img);
-            review.updateImg(newFileName);
-        }
-
-        review.updateReview(request);
-
-        return new WriteReviewResponse(review);
-    }// end of public WriteReviewResponse update(UpdateReviewRequest request, MultipartFile img) -------------------
-
+//    @PostConstruct
+//    private void initUploadPath() {
+//        File path = new File(uploadPath);
+//
+//        // 상대 경로일 경우만 절대 경로로 변환
+//        if (!path.isAbsolute()) {
+//            String baseDir = System.getProperty("user.dir");
+//            path = new File(baseDir, uploadPath);
+//        }
+//
+//        uploadPath = path.getAbsolutePath(); // 변환 완료
+//        File uploadDir = new File(uploadPath);
+//        if (!uploadDir.exists()) {
+//            uploadDir.mkdirs(); // 디렉토리 생성
+//        }
+//
+//        log.info("최종 이미지 저장 경로: {}", uploadPath);
+//    }// end of private void initUploadPath() ----------------------
 
     // 파일 업로드 메소드
     private String uploadFile(MultipartFile file) throws IOException {
@@ -165,6 +99,98 @@ public class ReviewService {
         log.info("삭제된 파일명: {}", fileName + " (" + uploadPath + "/" + fileName + "");
     }// end of private void deleteFile(String fileName) --------------------
 
+    // 리뷰 등록
+    @Transactional
+    public WriteReviewResponse save(WriteReviewRequest request, MultipartFile img) throws IOException {
+        // 회원 정보와 상품 정보를 가져와야 함.
 
+        // 회원 검증 로직 (추후 변경)
+        User user = userRepository.findById(request.getUserNo())
+                                .orElseThrow(UserNotFondException::new);    // 기본 에러 메시지
+//                                .orElseThrow(() -> new UserNotFondException("회원 정보를 찾을 수 없습니다."));  // 커스텀 에러 메시지
+
+        // 상품 검증 로직 (추후 변경)
+        Option option = optionRepository.findById(request.getOptionNo())
+                                .orElseThrow(OptionNotFoundException::new);
+//                                .orElseThrow(() -> new OptionNotFoundException("옵션 정보를 찾을 수 없습니다."));
+        // 첨부 이미지가 존재할 경우
+        if (img != null && !img.isEmpty()) {
+            // 이미지 서버에 저장
+            String newFileName = uploadFile(img);
+            request.setImg(newFileName);
+        }
+
+        Review review = reviewRepository.save(request.toEntity(user, option));
+
+        return new WriteReviewResponse(review);
+    }// end of public WriteReviewResponse save(WriteReviewRequest request, MultipartFile img) throws IOException -------------------
+
+
+    // 리뷰 수정
+    @Transactional
+    public WriteReviewResponse update(UpdateReviewRequest request, MultipartFile img) throws IOException {
+
+        // 기존 리뷰 정보 조회
+        Review review = reviewRepository.findById(request.getId())
+                            .orElseThrow(ReviewNotFoundException::new);
+
+        // 작성자 일치 여부 확인 (추후)
+
+        // 기존 이미지 삭제: 수정 시 이미지가 없고, 기존 이미지가 있었던 경우
+        if ((img == null || img.isEmpty()) && review.getImg() != null) {
+            deleteFile(review.getImg());
+            review.updateImg(null);
+        }
+
+
+        // 정보 업데이트
+
+        // 첨부 이미지가 존재할 경우
+        if (img != null && !img.isEmpty()) {
+
+            // 기존 이미지가 있다면 삭제
+            if (review.getImg() != null) {
+                deleteFile(review.getImg());
+            }
+
+            // 이미지 서버에 저장
+            String newFileName = uploadFile(img);
+            review.updateImg(newFileName);
+        }
+
+        review.updateReview(request);
+
+        return new WriteReviewResponse(review);
+    }// end of public WriteReviewResponse update(UpdateReviewRequest request, MultipartFile img) -------------------
+
+
+    // 리뷰 삭제
+    @Transactional
+    public void delete(Long id) {
+
+        // 추후 로그인 검증
+
+        Review review = reviewRepository.findById(id)
+                            .orElseThrow(ReviewNotFoundException::new);
+        // 첨부 이미지가 있다면 삭제
+        if (review.getImg() != null) {
+            deleteFile(review.getImg());
+        }
+
+        log.info("리뷰 삭제 완료");
+
+        reviewRepository.delete(review);
+    }// end of public void delete(Long id) --------------------------
+
+
+    // id(PK)로 조회한 리뷰 엔티티를 반환하는 메소드
+    @Transactional(readOnly = true)
+    public Review findById(Long id) {
+
+        // 추후 로그인 검증
+
+        return reviewRepository.findById(id)
+                .orElseThrow(ReviewNotFoundException::new);
+    }// end of public Review findById(Long id) --------------------
 
 }
