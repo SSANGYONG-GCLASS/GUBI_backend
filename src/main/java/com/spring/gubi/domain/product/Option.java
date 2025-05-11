@@ -1,5 +1,7 @@
 package com.spring.gubi.domain.product;
 
+import com.spring.gubi.config.error.ErrorCode;
+import com.spring.gubi.config.error.exception.BusinessBaseException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +18,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Entity
 @Table(name = "options")
 @Getter
@@ -43,6 +47,18 @@ public class Option {
 	
 	@Column(name = "img", nullable = false)
 	private String img;
-	
+
+	@Column(name = "cnt", nullable = false)
+	private Integer cnt;
+
+	public void decreaseCnt(Integer cnt) {
+		if (this.cnt - cnt < 0) {
+			throw new BusinessBaseException(ErrorCode.OUT_OF_STOCK);
+		}
+		else {
+			this.cnt -= cnt;
+			log.info("{}번 상품 옵션 수량 차감 결과: {}", this.id, this.cnt);
+		}
+	}
 	
 }

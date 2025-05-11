@@ -18,12 +18,12 @@ public class OrderDetail {
     private Long id;
 
     @JoinColumn(name = "fk_orderno", referencedColumnName = "orderno", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Order order; // 주문 번호 (FK)
 
     @JoinColumn(name = "fk_optionno", referencedColumnName = "optionno", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Option fk_optionno; // 옵션 번호 (FK)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Option option; // 옵션 번호 (FK)
 
     @Column(name = "cnt", nullable = false)
     private Integer cnt; // 수량
