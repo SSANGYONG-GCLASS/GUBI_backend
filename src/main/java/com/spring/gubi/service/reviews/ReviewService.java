@@ -99,7 +99,6 @@ public class ReviewService {
         log.info("삭제된 파일명: {}", fileName + " (" + uploadPath + "/" + fileName + "");
     }// end of private void deleteFile(String fileName) --------------------
 
-
     // 리뷰 등록
     @Transactional
     public WriteReviewResponse save(WriteReviewRequest request, MultipartFile img) throws IOException {
@@ -193,4 +192,5 @@ public class ReviewService {
         return reviewRepository.findById(id)
                 .orElseThrow(ReviewNotFoundException::new);
     }// end of public Review findById(Long id) --------------------
+
 }

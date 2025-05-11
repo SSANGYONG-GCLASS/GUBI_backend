@@ -288,8 +288,7 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.img").value(Matchers.matchesPattern("^[a-z0-9]{32}\\.png$")))
                 .andExpect(jsonPath("$.img").value(Matchers.not(oldImg)));
     }// end of void 이미지_포함_리뷰_수정_테스트() throws Exception --------------
-
-
+          
 
     @DisplayName("이미지가 없는 리뷰 삭제")
     @Test
@@ -324,5 +323,5 @@ class ReviewControllerTest {
         assertThat(deleted).isEmpty();
 
     }// end of void 이미지가_있는_리뷰_삭제() throws Exception --------------------
-
+          
 }

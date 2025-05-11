@@ -51,7 +51,6 @@ public class ReviewController {
     }// end of public ResponseEntity<WriteReviewResponse> updateReview(...) ----------------
 
 
-
     // 리뷰 삭제
     @DeleteMapping("/api/reviews/{id}")
     public ResponseEntity<Map<String, String>> deleteReview(@PathVariable("id") Long id) {
