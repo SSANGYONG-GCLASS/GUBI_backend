@@ -62,6 +62,13 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;
 
+    public void updateStatus(UpdateOrderStatusRequest request) {
+        this.status = request.getStatus();
+    }
+
+    public void updateDeliveryDate(UpdateOrderDeliveryDateRequest request) {
+        this.deliveryDate = request.getDeliveryDate();
+    }
 
     public void updateOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;

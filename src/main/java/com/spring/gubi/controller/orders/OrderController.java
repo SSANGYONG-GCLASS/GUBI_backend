@@ -29,5 +29,16 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
+    @PutMapping("/api/orders/{id}/status")
+    public ResponseEntity<Map<String, String>> updateOrderStatus(@PathVariable Long id, @RequestBody UpdateOrderStatusRequest request) {
+        orderService.updateOrderStatus(id, request);
+        return ResponseEntity.ok().body(Map.of("message", "주문상태 수정이 완료되었습니다."));
+    }
+
+    @PutMapping("/api/orders/{id}/delivery-date")
+    public ResponseEntity<Map<String, String>> updateOrderDeliveryDate(@PathVariable Long id, @RequestBody UpdateOrderDeliveryDateRequest request) {
+        orderService.updateOrderDeliveryDate(id, request);
+        return ResponseEntity.ok().body(Map.of("message", "배송일자 수정이 완료되었습니다."));
+    }
 
 }

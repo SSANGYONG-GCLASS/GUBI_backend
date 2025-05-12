@@ -1,12 +1,18 @@
 package com.spring.gubi.controller.orders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.jayway.jsonpath.JsonPath;
 import com.spring.gubi.config.error.ErrorCode;
 import com.spring.gubi.domain.carts.Cart;
+import com.spring.gubi.domain.orders.Order;
 import com.spring.gubi.domain.orders.OrderStatus;
 import com.spring.gubi.domain.product.Option;
 import com.spring.gubi.domain.users.*;
 import com.spring.gubi.dto.orders.AddOrderRequest;
+import com.spring.gubi.dto.orders.UpdateOrderDeliveryDateRequest;
+import com.spring.gubi.dto.orders.UpdateOrderStatusRequest;
 import com.spring.gubi.repository.carts.CartRepository;
 import com.spring.gubi.repository.products.OptionRepository;
 import com.spring.gubi.repository.users.UserRepository;
@@ -22,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -287,7 +294,6 @@ public class OrderControllerTest {
         mockMvc.perform(get("/api/orders?userNo=" + user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orders").isArray());
-
     }
 
     @DisplayName("주문 조회 실패 존재하지 않는 회원 404 반환")
@@ -299,6 +305,130 @@ public class OrderControllerTest {
         mockMvc.perform(get("/api/orders?userNo=" + notExistId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
+    }
 
+    @DisplayName("주문 상태 수정 성공 200 반환")
+    @Test
+    void 주문_상태_수정_성공() throws Exception {
+        // 주문 등록
+        List<Long> cartNoList = new ArrayList<>();
+        cartNoList.add(cart1.getId());
+        cartNoList.add(cart2.getId());
+
+        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+                .deliveryNo(delivery.getId())
+                .usePoint(10)
+                .status(OrderStatus.ORDER_COMPLETED)
+                .cartNoList(cartNoList)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(addRequest);
+
+        MvcResult result = mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        int orderNo = JsonPath.read(response, "$.order.id");
+
+        // 주문 상태 수정
+        UpdateOrderStatusRequest request = UpdateOrderStatusRequest.builder()
+                .status(OrderStatus.SHIPPING)
+                .build();
+
+        json = objectMapper.writeValueAsString(request);
+
+        log.info("주문 상태 수정 성공 테스트 시작");
+
+        mockMvc.perform(put("/api/orders/"+orderNo+"/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("주문상태 수정이 완료되었습니다."));
+    }
+
+    @DisplayName("주문 상태 수정 실패 존재하지 않는 주문 404 반환")
+    @Test
+    void 주문_상태_수정_실패_존재하지_않는_주문() throws Exception {
+
+        // 주문 상태 수정
+        UpdateOrderStatusRequest request = UpdateOrderStatusRequest.builder()
+                .status(OrderStatus.SHIPPING)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(request);
+
+        log.info("주문 상태 수정 실패 존재하지 않는 주문 테스트 시작");
+
+        mockMvc.perform(put("/api/orders/"+notExistId+"/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
+    }
+
+    @DisplayName("주문 배송일자 수정 성공 200 반환")
+    @Test
+    void 주문_배송일자_수정_성공() throws Exception {
+        // 주문 등록
+        List<Long> cartNoList = new ArrayList<>();
+        cartNoList.add(cart1.getId());
+        cartNoList.add(cart2.getId());
+
+        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+                .deliveryNo(delivery.getId())
+                .usePoint(10)
+                .status(OrderStatus.ORDER_COMPLETED)
+                .cartNoList(cartNoList)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(addRequest);
+
+        MvcResult result = mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        int orderNo = JsonPath.read(response, "$.order.id");
+
+        // 주문 배송일자 수정
+        json = """
+            {
+                "deliveryDate":"2025-05-12T17:26:39"
+            }
+            """;
+
+        log.info("주문 배송일자 수정 성공 테스트 시작");
+
+        mockMvc.perform(put("/api/orders/"+orderNo+"/delivery-date")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("배송일자 수정이 완료되었습니다."));
+    }
+
+    @DisplayName("주문 상태 수정 실패 존재하지 않는 주문 404 반환")
+    @Test
+    void 주문_배송일자_수정_실패_존재하지_않는_주문() throws Exception {
+        String json = """
+            {
+                "deliveryDate":"2025-05-12T17:26:39"
+            }
+            """;
+
+        log.info("주문 배송일자 수정 실패 존재하지 않는 주문 테스트 시작");
+
+        mockMvc.perform(put("/api/orders/"+notExistId+"/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
     }
 }
