@@ -27,8 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,6 +117,8 @@ public class OrderControllerTest {
                 .build();
 
         this.cart3 = cartRepository.save(testCart);
+
+        log.info("테스트 데이터 입력 완료");
     }
 
     @DisplayName("주문 등록 성공 201 반환")
@@ -286,6 +287,18 @@ public class OrderControllerTest {
         mockMvc.perform(get("/api/orders?userNo=" + user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orders").isArray());
+
+    }
+
+    @DisplayName("주문 조회 실패 존재하지 않는 회원 404 반환")
+    @Test
+    void 주문_조회_실패_존재하지_않는_회원() throws Exception {
+
+        log.info("주문 조회 성공 테스트 시작");
+
+        mockMvc.perform(get("/api/orders?userNo=" + notExistId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
 
     }
 }
