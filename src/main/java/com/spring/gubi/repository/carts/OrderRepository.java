@@ -12,4 +12,6 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
+    @Query("SELECT o FROM Order o JOIN FETCH o.delivery JOIN FETCH o.orderDetails od JOIN FETCH od.option op WHERE o.user.id = :id")
+    Optional<Page<Order>> findByUser_Id(Long id, Pageable pageable);
 }
