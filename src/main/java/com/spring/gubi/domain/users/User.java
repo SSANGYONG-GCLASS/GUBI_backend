@@ -2,17 +2,16 @@ package com.spring.gubi.domain.users;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.CascadeType;
+import com.spring.gubi.config.error.ErrorCode;
+import com.spring.gubi.config.error.exception.BusinessBaseException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -20,8 +19,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Entity
 @Table(name = "users") // 데이터베이스 테이블 이름
 @Getter
@@ -88,5 +89,14 @@ public class User {
 	@Column(name = "role")
 	@Enumerated(EnumType.STRING)
 	private UserRole role; // 권한 (ENUM: USER, ADMIN)
-	
+
+    public void usePoint(Integer usePoint) {
+		if(point - usePoint < 0) {
+            throw new BusinessBaseException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+		}
+		else {
+			this.point -= usePoint;
+			log.info("{}번 회원 포인트 차감 결과: {}", this.id, this.point);
+		}
+    }
 } // end of class...
