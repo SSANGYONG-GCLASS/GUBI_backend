@@ -33,7 +33,7 @@ public class OrderService {
     public GetOrderResponse getOrdersByUser_Id(GetOrderRequest request) {
         User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
 
-        Page<Order> orders = orderRepository.findByUser_Id(user.getId(), request.getPageable())
+        Page<Order> orders = orderRepository.findByUser_IdAndStatusIn(user.getId(), request.getStatuses(), request.getPageable())
                 .orElseThrow();
         Pagination pagination = PagingUtil.getPagination(orders, 5);
         return new GetOrderResponse(orders, pagination);
