@@ -41,4 +41,10 @@ public class OrderController {
         return ResponseEntity.ok().body(Map.of("message", "배송일자 수정이 완료되었습니다."));
     }
 
+    @DeleteMapping("/api/orders/{id}")
+    public ResponseEntity<Map<String, String>> deleteOrder(@PathVariable Long id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.ok().body(Map.of("message", "주문이 삭제되었습니다."));
+    }
+
 }

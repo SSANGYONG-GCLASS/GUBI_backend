@@ -71,14 +71,20 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateOrderStatus(Long id, UpdateOrderStatusRequest request) {
+    public void updateOrderStatus(Long id, UpdateOrderStatusRequest request) { // TODO: 관리자 검증 필요
         Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
         order.updateStatus(request);
     }
 
     @Transactional
-    public void updateOrderDeliveryDate(Long id, UpdateOrderDeliveryDateRequest request) {
+    public void updateOrderDeliveryDate(Long id, UpdateOrderDeliveryDateRequest request) { // TODO: 관리자 검증 필요
         Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
         order.updateDeliveryDate(request);
+    }
+
+    @Transactional
+    public void deleteOrder(Long id) { // TODO: 회원번호 검증 또는 관리자 검증 필요
+        Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+        orderRepository.delete(order);
     }
 }

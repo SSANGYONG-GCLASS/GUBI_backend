@@ -431,4 +431,50 @@ public class OrderControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
     }
+
+    @DisplayName("주문 삭제 성공 200 반환")
+    @Test
+    void 주문_삭제_성공() throws Exception {
+        // 주문 등록
+        List<Long> cartNoList = new ArrayList<>();
+        cartNoList.add(cart1.getId());
+        cartNoList.add(cart2.getId());
+
+        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+                .deliveryNo(delivery.getId())
+                .usePoint(10)
+                .status(OrderStatus.ORDER_COMPLETED)
+                .cartNoList(cartNoList)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(addRequest);
+
+        MvcResult result = mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        int orderNo = JsonPath.read(response, "$.order.id");
+
+        // 주문 삭제
+        log.info("주문 삭제 성공 테스트 시작");
+
+        mockMvc.perform(delete("/api/orders/"+orderNo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("주문이 삭제되었습니다."));
+    }
+
+    @DisplayName("주문 삭제 실패 존재하지 않는 주문 404 반환")
+    @Test
+    void 주문_삭제_실패_존재하지_않는_주문() throws Exception {
+        log.info("주문 삭제 실패 존재하지 않는 주문 테스트 시작");
+
+        mockMvc.perform(delete("/api/orders/"+notExistId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
+
+    }
 }
