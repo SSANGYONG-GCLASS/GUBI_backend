@@ -2,8 +2,6 @@ package com.spring.gubi.domain.orders;
 
 import com.spring.gubi.domain.users.Delivery;
 import com.spring.gubi.domain.users.User;
-import com.spring.gubi.dto.orders.UpdateOrderDeliveryDateRequest;
-import com.spring.gubi.dto.orders.UpdateOrderStatusRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
