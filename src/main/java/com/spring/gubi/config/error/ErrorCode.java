@@ -26,7 +26,7 @@ public enum ErrorCode {
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "C1", "존재하지 않는 장바구니입니다."),
 
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD1", "존재하지 않는 주문입니다."),
-    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "OD2", "상품 재고가 부족합니다."),;
+    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "OD2", "상품 재고가 부족합니다.");
 
 
     private final String message;

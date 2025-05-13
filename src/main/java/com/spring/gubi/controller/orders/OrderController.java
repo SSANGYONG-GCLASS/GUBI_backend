@@ -17,6 +17,11 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @GetMapping("/api/orders")
+    public ResponseEntity<GetOrderResponse> getOrdersByUserid(@ModelAttribute GetOrderRequest request) {
+        GetOrderResponse order = orderService.getOrdersByUser_Id(request);
+        return ResponseEntity.ok().body(order);
+    }
 
     @PostMapping("/api/orders")
     public ResponseEntity<AddOrderResponse> addOrder(@RequestBody AddOrderRequest request) {

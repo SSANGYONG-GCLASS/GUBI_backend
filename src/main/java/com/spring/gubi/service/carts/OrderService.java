@@ -11,7 +11,10 @@ import com.spring.gubi.repository.carts.CartRepository;
 import com.spring.gubi.repository.carts.OrderRepository;
 import com.spring.gubi.repository.users.DeliveryRepository;
 import com.spring.gubi.repository.users.UserRepository;
+import com.spring.gubi.util.Pagination;
+import com.spring.gubi.util.PagingUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,15 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final DeliveryRepository deliveryRepository;
 
+    @Transactional(readOnly = true)
+    public GetOrderResponse getOrdersByUser_Id(GetOrderRequest request) {
+        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
+
+        Page<Order> orders = orderRepository.findByUser_IdAndStatusIn(user.getId(), request.getStatuses(), request.getPageable())
+                .orElseThrow();
+        Pagination pagination = PagingUtil.getPagination(orders, 5);
+        return new GetOrderResponse(orders, pagination);
+    }
 
     @Transactional
     public AddOrderResponse saveOrder(AddOrderRequest request) {

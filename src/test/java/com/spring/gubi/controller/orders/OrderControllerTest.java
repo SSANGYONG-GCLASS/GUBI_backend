@@ -1,6 +1,7 @@
 package com.spring.gubi.controller.orders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring.gubi.config.error.ErrorCode;
 import com.spring.gubi.domain.carts.Cart;
 import com.spring.gubi.domain.orders.OrderStatus;
 import com.spring.gubi.domain.product.Option;
@@ -26,8 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -117,6 +117,8 @@ public class OrderControllerTest {
                 .build();
 
         this.cart3 = cartRepository.save(testCart);
+
+        log.info("테스트 데이터 입력 완료");
     }
 
     @DisplayName("주문 등록 성공 201 반환")
@@ -168,7 +170,7 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다."));
+                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     @DisplayName("주문 등록 실패 존재하지 않는 장바구니 404 반환")
@@ -194,7 +196,7 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("존재하지 않는 장바구니입니다."));
+                .andExpect(jsonPath("$.message").value(ErrorCode.CART_NOT_FOUND.getMessage()));
     }
 
     @DisplayName("주문 등록 실패 포인트 잔액 부족 400 반환")
@@ -220,7 +222,7 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("포인트 잔액이 부족합니다."));
+                .andExpect(jsonPath("$.message").value(ErrorCode.INSUFFICIENT_POINT_BALANCE.getMessage()));
     }
 
     @DisplayName("주문 등록 실패 존재하지 않는 배송지 400 반환")
@@ -246,7 +248,7 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("존재하지 않는 배송지입니다."));
+                .andExpect(jsonPath("$.message").value(ErrorCode.DELIVERY_NOT_FOUND.getMessage()));
     }
 
     @DisplayName("주문 등록 실패 상품 재고 부족 400 반환")
@@ -273,6 +275,30 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("상품 재고가 부족합니다."));
+                .andExpect(jsonPath("$.message").value(ErrorCode.OUT_OF_STOCK.getMessage()));
+    }
+
+    @DisplayName("주문 조회 성공 200 반환")
+    @Test
+    void 주문_조회_성공() throws Exception {
+
+        log.info("주문 조회 성공 테스트 시작");
+
+        mockMvc.perform(get("/api/orders?userNo=" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orders").isArray());
+
+    }
+
+    @DisplayName("주문 조회 실패 존재하지 않는 회원 404 반환")
+    @Test
+    void 주문_조회_실패_존재하지_않는_회원() throws Exception {
+
+        log.info("주문 조회 성공 테스트 시작");
+
+        mockMvc.perform(get("/api/orders?userNo=" + notExistId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
+
     }
 }
