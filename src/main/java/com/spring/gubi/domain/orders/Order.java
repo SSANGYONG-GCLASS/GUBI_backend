@@ -2,6 +2,8 @@ package com.spring.gubi.domain.orders;
 
 import com.spring.gubi.domain.users.Delivery;
 import com.spring.gubi.domain.users.User;
+import com.spring.gubi.dto.orders.UpdateOrderDeliveryDateRequest;
+import com.spring.gubi.dto.orders.UpdateOrderStatusRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -60,6 +62,13 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;
 
+    public void updateStatus(UpdateOrderStatusRequest request) {
+        this.status = request.getStatus();
+    }
+
+    public void updateDeliveryDate(UpdateOrderDeliveryDateRequest request) {
+        this.deliveryDate = request.getDeliveryDate();
+    }
 
     public void updateOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;

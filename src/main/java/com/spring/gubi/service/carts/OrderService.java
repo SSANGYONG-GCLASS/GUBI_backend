@@ -70,4 +70,15 @@ public class OrderService {
         return new AddOrderResponse(order);
     }
 
+    @Transactional
+    public void updateOrderStatus(Long id, UpdateOrderStatusRequest request) {
+        Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+        order.updateStatus(request);
+    }
+
+    @Transactional
+    public void updateOrderDeliveryDate(Long id, UpdateOrderDeliveryDateRequest request) {
+        Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+        order.updateDeliveryDate(request);
+    }
 }
