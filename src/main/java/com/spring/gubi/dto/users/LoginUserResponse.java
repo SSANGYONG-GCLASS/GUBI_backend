@@ -9,10 +9,14 @@ import lombok.Setter;
 @Setter
 public class LoginUserResponse {
 	
-	private String userId;
-	private String message;
-	private String accessToken;
-	private String refreshToken;
+	/**
+     *  로그인시 응답 DTO
+     */
+	
+	private String userId;		 // 유저 ID
+	private String message;		 // 로그인 성공 메시지
+	private String accessToken;  // accessToken
+	private String refreshToken; // refreshToken
 	
 	
 	public LoginUserResponse(User user) {

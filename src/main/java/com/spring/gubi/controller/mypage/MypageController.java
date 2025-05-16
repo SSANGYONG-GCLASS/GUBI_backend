@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.gubi.domain.users.User;
 import com.spring.gubi.repository.users.UserRepository;
-import com.spring.gubi.service.users.LoginUserService;
+import com.spring.gubi.service.users.AuthService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class MypageController {
 
 	private final UserRepository userRepository;
 	
-	private LoginUserService loginUserService;
+	private AuthService loginUserService;
 	
 	
 	public MypageController(UserRepository userRepository) {

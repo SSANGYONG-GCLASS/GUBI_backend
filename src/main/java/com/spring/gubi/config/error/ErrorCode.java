@@ -23,7 +23,7 @@ public enum ErrorCode {
 
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "JWT1", "권한이 부족합니다."),
     
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "JWT2", "인증이 필요합니다."),
+    AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "JWT2", "인증이 필요합니다."),
     
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "L1", "아이디 또는 비밀번호가 일치하지 않습니다."),
 

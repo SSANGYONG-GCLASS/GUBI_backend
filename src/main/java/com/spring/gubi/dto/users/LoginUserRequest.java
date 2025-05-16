@@ -9,8 +9,12 @@ import lombok.Setter;
 @Setter
 public class LoginUserRequest {
 	
-	private String userid;
-	private String password;
+	/**
+     *  로그인시 요청 DTO
+     */
+	
+	private String userid;		// 유저 ID
+	private String password;	// 패스워드
 	
 	public User toEntity() {
 		return User.builder()
