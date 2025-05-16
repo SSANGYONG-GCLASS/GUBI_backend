@@ -15,6 +15,7 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "E3", "존재하지 않는 엔티티입니다."),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U1", "존재하지 않는 회원입니다."),
+    INSUFFICIENT_POINT_BALANCE(HttpStatus.BAD_REQUEST, "U2", "포인트 잔액이 부족합니다."),
 
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OP1", "존재하지 않는 상품 옵션입니다."),
 
@@ -28,7 +29,10 @@ public enum ErrorCode {
 
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R1", "존재하지 않는 리뷰입니다."),
 
-    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "C1", "존재하지 않는 장바구니입니다.");
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "C1", "존재하지 않는 장바구니입니다."),
+
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD1", "존재하지 않는 주문입니다."),
+    OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "OD2", "상품 재고가 부족합니다.");
 
 
     private final String message;

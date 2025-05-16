@@ -57,9 +57,6 @@ public class Product {
 	@Builder.Default
 	private LocalDateTime registerday = LocalDateTime.now();
 	
-	@Column(name = "cnt", nullable = false)
-	private Integer cnt;
-	
 	@Column(name = "delivery_price", nullable = false)
 	private Integer delivery_price;
 	
