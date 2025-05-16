@@ -49,6 +49,11 @@ public class CartService {
         Option option = optionRepository.findById(request.getOptionNo())
                 .orElseThrow(OptionNotFoundException::new);
 
+        // 상품의 재고가 부족하면 장바구니에 추가하지 않음
+        if(option.getCnt() < request.getCnt()) {
+            throw new BusinessBaseException(ErrorCode.OUT_OF_STOCK);
+        }
+
         cartRepository.findByUser_IdAndOption_Id(user.getId(), option.getId())
                 .map(cart -> {
                     cart.updateCnt(UpdateCartCntRequest.builder()
