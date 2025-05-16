@@ -59,4 +59,15 @@ public class HttpOnlyCookie {
 	
 	}
 	
+	
+	// 로그아웃시 쿠키의 지속시간을 0으로 만들어 만료처리
+	public static void expireCookie(HttpServletResponse response, String name) {
+        ResponseCookie cookie = ResponseCookie.from(name, "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+	
 }

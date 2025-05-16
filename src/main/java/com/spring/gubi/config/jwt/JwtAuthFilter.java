@@ -22,7 +22,7 @@ import com.spring.gubi.domain.users.User;
 import com.spring.gubi.repository.jwt.RefreshTokenRepository;
 import com.spring.gubi.repository.users.UserRepository;
 import com.spring.gubi.service.jwt.RefreshTokenService;
-import com.spring.gubi.service.users.LoginUserService;
+import com.spring.gubi.service.users.AuthService;
 import com.spring.gubi.util.HttpOnlyCookie;
 
 import io.jsonwebtoken.ExpiredJwtException;

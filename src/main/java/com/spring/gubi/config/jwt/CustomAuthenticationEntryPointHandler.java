@@ -26,13 +26,13 @@ public class CustomAuthenticationEntryPointHandler implements AuthenticationEntr
         log.info("[CustomAuthenticationEntryPointHandler] :: {}", request.getRequestURL());
         log.info("[CustomAuthenticationEntryPointHandler] :: 로그인 안 한 사용자가 보호된 URL에 접근");
         
-        response.setStatus(ErrorCode.UNAUTHORIZED.getStatus().value());
+        response.setStatus(ErrorCode.AUTHENTICATION_REQUIRED.getStatus().value());
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
 
         JsonObject returnJson = new JsonObject();
-        returnJson.addProperty("errorCode", ErrorCode.UNAUTHORIZED.getCode());
-        returnJson.addProperty("errorMsg", ErrorCode.UNAUTHORIZED.getMessage());
+        returnJson.addProperty("errorCode", ErrorCode.AUTHENTICATION_REQUIRED.getCode());
+        returnJson.addProperty("errorMsg", ErrorCode.AUTHENTICATION_REQUIRED.getMessage());
 
         PrintWriter out = response.getWriter();
         out.print(returnJson);
