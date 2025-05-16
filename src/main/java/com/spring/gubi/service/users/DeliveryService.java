@@ -4,18 +4,17 @@ import com.spring.gubi.config.error.exception.DeliveryNotFoundException;
 import com.spring.gubi.config.error.exception.UserNotFondException;
 import com.spring.gubi.domain.users.Delivery;
 import com.spring.gubi.domain.users.User;
-import com.spring.gubi.dto.users.AddDeliveryRequest;
-import com.spring.gubi.dto.users.AddDeliveryResponse;
-import com.spring.gubi.dto.users.UpdateDeliveryRequest;
-import com.spring.gubi.dto.users.UpdateDeliveryResponse;
+import com.spring.gubi.dto.users.*;
 import com.spring.gubi.repository.users.DeliveryRepository;
 import com.spring.gubi.repository.users.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
 @Service
+@Slf4j
 public class DeliveryService {
     
     private final DeliveryRepository deliveryRepository;
@@ -64,6 +63,34 @@ public class DeliveryService {
         return new UpdateDeliveryResponse(delivery);
         
     }//end of public UpdateDeliveryResponse updateDelivery(UpdateDeliveryRequest request) throws IOException {}...
+    
+    
+    
+    // 배송지 삭제
+    @Transactional
+    public void deleteDelivery(Long id) {
+        
+        // 딜리버리 번호로 검색
+        Delivery delivery = deliveryRepository.findById(id)
+                .orElseThrow(DeliveryNotFoundException::new);
+        
+        log.info("배송지 삭제 완료");
+        
+        // 검색되면 삭제
+        deliveryRepository.delete(delivery);
+    }//end of public void deleteDelivery(Long id) {}...
+    
+    
+    
+    
+    
+    
+    // public GetDeliverysResponse getDelivery(GetDeliverysRequest request) {
+    //
+    // }
+    
+    
+    // 배송지 삭제
     
     
     
