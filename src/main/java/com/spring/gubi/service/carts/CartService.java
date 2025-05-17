@@ -1,5 +1,7 @@
 package com.spring.gubi.service.carts;
 
+import com.spring.gubi.config.error.ErrorCode;
+import com.spring.gubi.config.error.exception.BusinessBaseException;
 import com.spring.gubi.config.error.exception.CartNotFoundException;
 import com.spring.gubi.config.error.exception.OptionNotFoundException;
 import com.spring.gubi.config.error.exception.UserNotFondException;
@@ -47,6 +49,11 @@ public class CartService {
         Option option = optionRepository.findById(request.getOptionNo())
                 .orElseThrow(OptionNotFoundException::new);
 
+        // 상품의 재고가 부족하면 장바구니에 추가하지 않음
+        if(option.getCnt() < request.getCnt()) {
+            throw new BusinessBaseException(ErrorCode.OUT_OF_STOCK);
+        }
+
         cartRepository.findByUser_IdAndOption_Id(user.getId(), option.getId())
                 .map(cart -> {
                     cart.updateCnt(UpdateCartCntRequest.builder()
@@ -62,7 +69,14 @@ public class CartService {
     public void updateCart(Long id, UpdateCartCntRequest request) {
         Cart cart = cartRepository.findByIdAndUser_Id(id, request.getUserNo())
                 .orElseThrow(CartNotFoundException::new);
-        cart.updateCnt(request);
+
+        if(cart.getOption().getCnt() > request.getCnt()) { // 상품 재고가 장바구니 수량보다 많은 경우
+            cart.updateCnt(request);
+        }
+        else { // 상품 재고보다 장바구니 수량이 많은 경우
+            request.setCnt(cart.getOption().getCnt()); // 재고 최대 수량으로 변경
+            cart.updateCnt(request);
+        }
     }
 
     // 장바구니 삭제
