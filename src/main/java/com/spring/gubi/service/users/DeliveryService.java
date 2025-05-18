@@ -85,12 +85,6 @@ public class DeliveryService {
     
     
     
-    // public GetDeliverysResponse getDelivery(GetDeliverysRequest request) {
-    //
-    // }
-    
-    
-    // 배송지 삭제
     
     
     
