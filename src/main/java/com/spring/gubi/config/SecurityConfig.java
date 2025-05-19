@@ -1,4 +1,4 @@
-package com.spring.gubi.security;
+package com.spring.gubi.config;
 
 import java.util.List;
 
@@ -65,6 +65,8 @@ public class SecurityConfig {
         		mvc.pattern(HttpMethod.POST, "/api/user/login"),
         		mvc.pattern(HttpMethod.POST, "api/token-refresh"),
                 mvc.pattern(HttpMethod.POST, "/api/user/register"),
+                mvc.pattern(HttpMethod.POST, "/api/user/emailCheckAndSend"),
+                mvc.pattern(HttpMethod.POST, "/api/user/emailAuthCheck"),
                 mvc.pattern("/favicon.ico"),
                 mvc.pattern("/error")
         };

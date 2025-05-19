@@ -17,6 +17,10 @@ spring:
     mongodb:
       uri: ${MONGODB_SRV}
 
+  
+    redis:
+      url: ${REDIS_SRV}
+
   jpa:
     hibernate:
       ddl-auto: none
@@ -39,6 +43,16 @@ spring:
     secret: ${JWT_SECRET}
     refresh-token-expiration-time: ${refresh-token-expiration-time}
 
+  mail:
+    host: smtp.gmail.com
+    username: ${MAIL_ADDRESS}
+    password: ${APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true       
+          starttls:
+            enable: true
 
 server:
   port: ${SERVER_PORT:8080}
