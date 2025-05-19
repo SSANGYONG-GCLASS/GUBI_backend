@@ -1,5 +1,6 @@
 package com.spring.gubi.domain.product;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.spring.gubi.domain.category.Category;
@@ -64,7 +65,7 @@ public class Product {
 	private String detail_html;
 	
 	@Column(name = "point_pct", nullable = false)
-	private Integer point_pct;
+	private BigDecimal point_pct;
 
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)

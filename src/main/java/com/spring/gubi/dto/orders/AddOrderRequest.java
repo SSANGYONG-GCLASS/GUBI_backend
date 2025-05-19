@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class AddOrderRequest {
 
         // 배송비
         // 총 주문금액이 30만원 이상이면 무료, 아니면 가장 저렴한 배송비 부담
-        int deliveryPrice = (totalPrice > 300000) ? 0 : carts.stream()
+        int deliveryPrice = (totalPrice >= 30 * 10000) ? 0 : carts.stream()
                 .mapToInt(cart -> cart.getOption().getProduct().getDelivery_price())
                 .min()
                 .orElseThrow();
@@ -42,7 +43,10 @@ public class AddOrderRequest {
 
         // 포인트 적립금
         int rewardPoint = carts.stream()
-                .mapToInt(cart -> cart.getOption().getProduct().getPoint_pct() * cart.getOption().getProduct().getPrice())
+                .mapToInt(cart -> BigDecimal.valueOf(cart.getOption().getProduct().getPrice())
+                        .multiply(cart.getOption().getProduct().getPoint_pct())
+                        .multiply(new BigDecimal(cart.getCnt()))
+                        .intValue())
                 .sum();
 
         // 주문

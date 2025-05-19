@@ -122,7 +122,7 @@ CREATE TABLE products (
     cnt     INTEGER NOT NULL ,                -- 재고
     delivery_price INTEGER NOT NULL ,         -- 배송비
     detail_html VARCHAR(255) NOT NULL,        -- 상품설명 html 경로
-    point_pct INTEGER NOT NULL,               -- 포인트 적립비율 1~5%
+    point_pct NUMERIC(3, 2) NOT NULL,         -- 포인트 적립비율 1~5%
 
     status VARCHAR(255)                       -- 상품 판매 상태
 );
