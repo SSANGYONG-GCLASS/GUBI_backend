@@ -16,9 +16,13 @@ import com.spring.gubi.config.error.exception.BusinessBaseException;
 import com.spring.gubi.config.jwt.JwtProvider;
 import com.spring.gubi.domain.users.User;
 import com.spring.gubi.dto.jwt.TokenRefreshResponse;
+import com.spring.gubi.dto.users.AuthRequest;
+import com.spring.gubi.dto.users.EmailCheckRequest;
+import com.spring.gubi.dto.users.FindIdResponse;
 import com.spring.gubi.dto.users.LoginUserRequest;
 import com.spring.gubi.dto.users.LoginUserResponse;
 import com.spring.gubi.repository.users.UserRepository;
+import com.spring.gubi.service.email.EmailSendService;
 import com.spring.gubi.service.jwt.RefreshTokenService;
 import com.spring.gubi.util.HttpOnlyCookie;
 
@@ -31,16 +35,20 @@ public class AuthService {
 	private final UserRepository userRepository;
 	
 	private final RefreshTokenService refreshTokenService;
+	
+	private final EmailSendService emailSendService;
+	
 	private final JwtProvider jwtProvider;
 	
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	
-	public AuthService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtProvider jwtProvider, RefreshTokenService refreshTokenService) {
+	public AuthService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtProvider jwtProvider, EmailSendService emailSendService, RefreshTokenService refreshTokenService) {
 		this.userRepository = userRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.jwtProvider = jwtProvider;
 		this.refreshTokenService = refreshTokenService;
+		this.emailSendService = emailSendService;
 	}
 
 	
@@ -53,6 +61,7 @@ public class AuthService {
 	 * @param request 클라이언트가 보낸 리프레시 토큰 (쿠키 기반)
 	 * @return 로그인 결과와 함께 액세스 토큰, 리프레시 토큰 정보를 담은 응답 객체
 	 * @throws BusinessBaseException 아이디가 존재하지 않거나 비밀번호가 일치하지 않을 경우 발생
+	 * 
 	 * TODO userId -> userNo 변경
 	 */
 	public LoginUserResponse login(HttpServletResponse httpResponse, LoginUserRequest request) {
@@ -139,6 +148,51 @@ public class AuthService {
 		HttpOnlyCookie.expireCookie(httpResponse, "accessToken");
 		HttpOnlyCookie.expireCookie(httpResponse, "refreshToken");
 	} // end of public void logoutUser(HttpServletResponse httpResponse, String userId) ----------------
+
+
+
+	/**
+	 * 이메일 발송 메소드로, 사용자가 입력한 이름과 이메일을 조회한 뒤
+	 * DB에 존재한다면 이메일을 전송합니다.
+	 * 
+	 * @param request 사용자가 입력한 이메일 주소, 이름
+	 * @return 없음
+	 * @throws USER_NOT_FOUND 사용자가 입력한 정보가 DB에 없을 시에 발생
+	 * 
+	 * @see https://mingdodev.github.io/blog/dev/2024-05-07-SMTP-spring-boot/
+	 */
+	public void emailCheckAndSend(EmailCheckRequest request) {
+		
+		// 사용자 존재 여부
+		userRepository.findByNameAndEmail(request.getName(), request.getEmail())
+				.orElseThrow(() -> new BusinessBaseException(ErrorCode.USER_NOT_FOUND));
+		
+		// 이메일 전송 서비스 호출
+        emailSendService.sendAuthEmail(request.getEmail(), "[gubi] 아이디 찾기 인증번호");
+	} // end of public void emailCheckAndSend(EmailCheckRequest request) ----------------
+
+
+
+	/**
+	 * 아이디찾기 로직에서 인증번호를 인증하는 메서드로,
+	 * 인증번호가 redis에 저장된 값과 같다면 userid를 알려줍니다.
+	 * 
+	 * @param request 사용자가 입력한 이메일 주소, 이름, 인증번호
+	 * @return 사용자 아이디를 담은 응답 객체
+	 * @throws EMAIL_AUTH_FAILED 인증코드가 잘못되었을 시에 발생
+	 * @throws USER_NOT_FOUND 사용자의 이름과 이메일이 잘못되었을 때 발생 -> 발생할 확률 x
+	 */
+	public FindIdResponse emailAuthCheck(AuthRequest request) {
+		
+		if (!emailSendService.emailAuthCheck(request.getCode(), request.getEmail())) {
+	        throw new BusinessBaseException(ErrorCode.EMAIL_AUTH_FAILED);
+	    }
+
+	    User user = userRepository.findByNameAndEmail(request.getName(), request.getEmail())
+	            .orElseThrow(() -> new BusinessBaseException(ErrorCode.USER_NOT_FOUND));
+
+	    return new FindIdResponse(user.getUserid(), user.getName());
+	} // end of public FindIdResponse emailAuthCheck(AuthRequest request) ----------------
 	
 	
 	

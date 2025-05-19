@@ -26,6 +26,8 @@ public enum ErrorCode {
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "JWT2", "인증이 필요합니다."),
     
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "L1", "아이디 또는 비밀번호가 일치하지 않습니다."),
+    
+    EMAIL_AUTH_FAILED(HttpStatus.BAD_REQUEST, "EM1", "이메일 인증에 실패했습니다."),
 
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "R1", "존재하지 않는 리뷰입니다."),
 

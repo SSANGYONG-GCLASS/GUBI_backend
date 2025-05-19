@@ -4,6 +4,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import com.spring.gubi.dto.jwt.TokenRefreshResponse;
+import com.spring.gubi.dto.users.AuthRequest;
+import com.spring.gubi.dto.users.EmailCheckRequest;
+import com.spring.gubi.dto.users.FindIdResponse;
 import com.spring.gubi.dto.users.LoginUserRequest;
 import com.spring.gubi.dto.users.LoginUserResponse;
 import com.spring.gubi.service.users.AuthService;
@@ -19,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -26,13 +30,13 @@ import org.springframework.web.bind.annotation.CookieValue;
 @Slf4j
 public class AuthController {
 	
-	private AuthService loginUserService;
+	private AuthService authService;
 	
 	private HttpServletResponse httpResponse;
     
 	
-	public AuthController(AuthService loginUserService) {
-		this.loginUserService = loginUserService;
+	public AuthController(AuthService authService) {
+		this.authService = authService;
 	}
 	
 	
@@ -46,7 +50,7 @@ public class AuthController {
 	 */
 	@PostMapping("/api/user/login")
 	public ResponseEntity<LoginUserResponse> loginUser(@RequestBody LoginUserRequest request, HttpServletResponse httpResponse) {
-		LoginUserResponse response = loginUserService.login(httpResponse, request);
+		LoginUserResponse response = authService.login(httpResponse, request);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
@@ -61,7 +65,7 @@ public class AuthController {
 	 */
     @PostMapping("api/token-refresh")
     public ResponseEntity<TokenRefreshResponse> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse httpResponse) {
-    	return loginUserService.refreshToken(httpResponse, refreshToken);
+    	return authService.refreshToken(httpResponse, refreshToken);
     }
     
     
@@ -80,11 +84,41 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인 상태가 아닙니다."));
         }
         String userId = (String) authentication.getPrincipal();
-        loginUserService.logoutUser(httpResponse, userId);
+        authService.logoutUser(httpResponse, userId);
         return ResponseEntity.ok().body(Map.of("message", "로그아웃 되었습니다."));
     }
     
     
+    
+    /**
+     * 이메일과 이름이 맞는지 체크합니다.
+     * 만약 서버에 저장된 값이 동일하다면 해당 이메일로 인증번호를 발송합니다.
+     * 
+     * @param request 체크 요청 정보 (이름, 이메일 등)
+	 * @param 이메일 체크를 담을 응답 객체
+	 * @return 체크 결과 메시지
+     */
+    @PostMapping("/api/user/emailCheckAndSend")
+    public ResponseEntity<Map<String, String>> emailCheckAndSend(@RequestBody EmailCheckRequest request) {
+    	authService.emailCheckAndSend(request);
+    	
+    	return ResponseEntity.ok().body(Map.of("message", "메일이 전송되었습니다."));
+    }
+    
+    
+    
+    /**
+     * 인증번호를 받아 인증을 체크합니다.
+     * 
+     * @param request 인증 요청 정보 (인증코드, 이메일 등)
+     * @return 아이디
+     */
+	@PostMapping("/api/user/emailAuthCheck")
+	public ResponseEntity<FindIdResponse> emailAuthCheck(@RequestBody AuthRequest request) {
+		FindIdResponse response = authService.emailAuthCheck(request);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 	
 	
 }
