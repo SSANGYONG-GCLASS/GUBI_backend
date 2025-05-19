@@ -1,10 +1,6 @@
 package com.spring.gubi.controller.users;
 
-import com.spring.gubi.domain.users.Delivery;
-import com.spring.gubi.dto.users.AddDeliveryRequest;
-import com.spring.gubi.dto.users.AddDeliveryResponse;
-import com.spring.gubi.dto.users.UpdateDeliveryRequest;
-import com.spring.gubi.dto.users.UpdateDeliveryResponse;
+import com.spring.gubi.dto.users.*;
 import com.spring.gubi.service.users.DeliveryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -50,6 +47,18 @@ public class DeliveryController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
         
     }//end of public ResponseEntity<AddDeliveryResponse> updateDelivery(@RequestBody AddDeliveryRequest request) throws IOException {}...
+    
+    
+    
+    // 배송지 삭제
+    @DeleteMapping(value = "/api/delivery/{id}")
+    public  ResponseEntity<Map<String, String>> deleteDelivery(@PathVariable("id") Long id) throws IOException {
+        deliveryService.deleteDelivery(id);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","배송지가 삭제되었습니다."));
+    }//end of public  ResponseEntity<Map<String, String>> deleteDelivery(@PathVariable("id") Long id) throws IOException {}...
+    
+    
+    
     
     
     
