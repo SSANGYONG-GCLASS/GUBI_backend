@@ -8,10 +8,7 @@ import com.spring.gubi.config.error.exception.UserNotFondException;
 import com.spring.gubi.domain.carts.Cart;
 import com.spring.gubi.domain.product.Option;
 import com.spring.gubi.domain.users.User;
-import com.spring.gubi.dto.carts.AddCartRequest;
-import com.spring.gubi.dto.carts.GetCartRequest;
-import com.spring.gubi.dto.carts.GetCartResponse;
-import com.spring.gubi.dto.carts.UpdateCartCntRequest;
+import com.spring.gubi.dto.carts.*;
 import com.spring.gubi.repository.carts.CartRepository;
 import com.spring.gubi.repository.products.OptionRepository;
 import com.spring.gubi.repository.users.UserRepository;
@@ -21,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,10 +33,9 @@ public class CartService {
     public GetCartResponse getCartsByUser_Id(GetCartRequest request) {
         User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
 
-        Page<Cart> carts = cartRepository.findByUser_Id(user.getId(), request.getPageable());
+        List<Cart> carts = cartRepository.findByUser_Id(user.getId());
 
-        Pagination pagination = PagingUtil.getPagination(carts, 5);
-        return new GetCartResponse(carts, pagination);
+        return new GetCartResponse(carts);
     }
 
     // 장바구니 저장, 같은 회원의 같은 상품 옵션이 존재하면 수량을 추가
@@ -84,5 +82,15 @@ public class CartService {
     public void deleteCart(Long id) {
         Cart cart = cartRepository.findById(id).orElseThrow(CartNotFoundException::new); // TODO: 로그인 유저 확인하기
         cartRepository.delete(cart);
+    }
+
+    public GetCartForOrderResponse getCartsByIdIn(GetCartForOrderRequest request) {
+        User user = userRepository.findById(request.getUserNo())
+                .orElseThrow(UserNotFondException::new);
+
+        List<Cart> carts = cartRepository.findByIdInAndUser_Id(request.getCartNoList(), user.getId());
+
+        return new GetCartForOrderResponse(carts);
+
     }
 }

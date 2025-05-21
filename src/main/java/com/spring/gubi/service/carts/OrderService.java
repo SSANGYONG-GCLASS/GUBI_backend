@@ -87,4 +87,9 @@ public class OrderService {
         Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
         orderRepository.delete(order);
     }
+
+    public GetUserDetailForOrderResponse getUserDetailForOrder(GetUserDetailForOrderRequest request) {
+        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
+        return new GetUserDetailForOrderResponse(user);
+    }
 }

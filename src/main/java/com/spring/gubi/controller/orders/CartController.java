@@ -1,9 +1,6 @@
 package com.spring.gubi.controller.orders;
 
-import com.spring.gubi.dto.carts.AddCartRequest;
-import com.spring.gubi.dto.carts.GetCartRequest;
-import com.spring.gubi.dto.carts.GetCartResponse;
-import com.spring.gubi.dto.carts.UpdateCartCntRequest;
+import com.spring.gubi.dto.carts.*;
 import com.spring.gubi.service.carts.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +20,12 @@ public class CartController {
     @GetMapping("/api/carts")
     public ResponseEntity<GetCartResponse> getCarts(@ModelAttribute GetCartRequest request) {
         GetCartResponse carts = cartService.getCartsByUser_Id(request);
+        return ResponseEntity.ok().body(carts);
+    }
+
+    @GetMapping("/api/carts/for-order")
+    public ResponseEntity<GetCartForOrderResponse> getCartsForOrder(@ModelAttribute GetCartForOrderRequest request) {
+        GetCartForOrderResponse carts = cartService.getCartsByIdIn(request);
         return ResponseEntity.ok().body(carts);
     }
 

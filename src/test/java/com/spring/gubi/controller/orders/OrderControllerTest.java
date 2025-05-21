@@ -477,4 +477,24 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
 
     }
+
+    @DisplayName("주문을 위한 회원 정보 조회 성공 200 반환")
+    @Test
+    void 주문을_위한_회원_정보_조회_성공() throws Exception {
+        log.info("주문을 위한 회원 정보 조회 성공 테스트 시작");
+
+        mockMvc.perform(get("/api/orders/user-detail?userNo="+user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("테스트"));
+    }
+
+    @DisplayName("주문을 위한 회원 정보 조회 실패 존재하지 않는 회원 404 반환")
+    @Test
+    void 주문을_위한_회원_정보_조회_실패_존재하지_않는_회원() throws Exception {
+        log.info("주문을 위한 회원 정보 조회 실패 존재하지 않는 회원 테스트 시작");
+
+        mockMvc.perform(get("/api/orders/user-detail?userNo="+notExistId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
+    }
 }
