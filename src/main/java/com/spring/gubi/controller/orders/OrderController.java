@@ -23,6 +23,12 @@ public class OrderController {
         return ResponseEntity.ok().body(order);
     }
 
+    @GetMapping("/api/orders/user-detail")
+    public ResponseEntity<GetUserDetailForOrderResponse> getUserDetailForOrder(@ModelAttribute GetUserDetailForOrderRequest request) {
+        GetUserDetailForOrderResponse userDetail = orderService.getUserDetailForOrder(request);
+        return ResponseEntity.ok().body(userDetail);
+    }
+
     @PostMapping("/api/orders")
     public ResponseEntity<AddOrderResponse> addOrder(@RequestBody AddOrderRequest request) {
         AddOrderResponse order = orderService.saveOrder(request);

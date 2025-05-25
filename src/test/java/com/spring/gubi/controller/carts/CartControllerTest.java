@@ -121,16 +121,16 @@ public class CartControllerTest {
 
     @DisplayName("장바구니 조회 성공 200 반환")
     @Test
-    void 장바구니_조회() throws Exception {
-        mockMvc.perform(get("/api/carts?userNo="+user.getId()+"&page=1&size=10"))
+    void 장바구니_조회_성공() throws Exception {
+        mockMvc.perform(get("/api/carts?userNo="+user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.carts").isArray());
-    }// end of void 장바구니_조회() throws Exception ---------------
+    }// end of void 장바구니_조회_성공() throws Exception ---------------
 
     @DisplayName("장바구니 조회 실패 존재하지 않는 회원 404 반환")
     @Test
     void 장바구니_조회_실패_존재하지_않는_회원() throws Exception {
-        mockMvc.perform(get("/api/carts?userNo=0&page=1&size=10"))
+        mockMvc.perform(get("/api/carts?userNo=0"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("존재하지 않는 회원입니다."));
     }// end of void 장바구니_조회_실패_존재하지_않는_회원() throws Exception -------
@@ -184,4 +184,13 @@ public class CartControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("존재하지 않는 장바구니입니다."));
     }// end of void 장바구니_삭제_실패_존재하지_않는_장바구니() throws Exception---------------
+
+    @DisplayName("주문을 위한 장바구니 조회 성공 200 반환")
+    @Test
+    void 주문을_위한_장바구니_조회_성공() throws Exception {
+        mockMvc.perform(get("/api/carts/for-order?userNo="+user.getId()+"&cartNoList="+cart.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.carts").isArray());
+    }// end of void 주문을_위한_장바구니_조회_성공() throws Exception ---------------
+
 }
