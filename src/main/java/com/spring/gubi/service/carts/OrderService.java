@@ -39,6 +39,12 @@ public class OrderService {
         return new GetOrderResponse(orders, pagination);
     }
 
+    public GetOneOrderResponse getOrdersById(Long id, GetOneOrderRequest request) {
+        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
+        Order order = orderRepository.findByIdAndUser_Id(id, user.getId()).orElseThrow(OrderNotFoundException::new);
+        return new GetOneOrderResponse(order);
+    }
+
     @Transactional
     public AddOrderResponse saveOrder(AddOrderRequest request) {
         User user = userRepository.findById(request.getUserNo())

@@ -23,6 +23,12 @@ public class OrderController {
         return ResponseEntity.ok().body(order);
     }
 
+    @GetMapping("/api/orders/{id}")
+    public ResponseEntity<GetOneOrderResponse> getOrdersByOrderNo(@PathVariable Long id, @ModelAttribute GetOneOrderRequest request) {
+        GetOneOrderResponse order = orderService.getOrdersById(id, request);
+        return ResponseEntity.ok().body(order);
+    }
+
     @GetMapping("/api/orders/user-detail")
     public ResponseEntity<GetUserDetailForOrderResponse> getUserDetailForOrder(@ModelAttribute GetUserDetailForOrderRequest request) {
         GetUserDetailForOrderResponse userDetail = orderService.getUserDetailForOrder(request);
@@ -31,8 +37,8 @@ public class OrderController {
 
     @PostMapping("/api/orders")
     public ResponseEntity<AddOrderResponse> addOrder(@RequestBody AddOrderRequest request) {
-        AddOrderResponse order = orderService.saveOrder(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        AddOrderResponse response = orderService.saveOrder(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/api/orders/{id}/status")

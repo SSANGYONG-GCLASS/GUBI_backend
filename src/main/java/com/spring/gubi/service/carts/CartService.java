@@ -12,10 +12,7 @@ import com.spring.gubi.dto.carts.*;
 import com.spring.gubi.repository.carts.CartRepository;
 import com.spring.gubi.repository.products.OptionRepository;
 import com.spring.gubi.repository.users.UserRepository;
-import com.spring.gubi.util.Pagination;
-import com.spring.gubi.util.PagingUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +26,6 @@ public class CartService {
     private final OptionRepository optionRepository;
 
     // 한 회원의 장바구니 목록 가져오기
-    @Transactional(readOnly = true)
     public GetCartResponse getCartsByUser_Id(GetCartRequest request) {
         User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
 
@@ -91,6 +87,5 @@ public class CartService {
         List<Cart> carts = cartRepository.findByIdInAndUser_Id(request.getCartNoList(), user.getId());
 
         return new GetCartForOrderResponse(carts);
-
     }
 }

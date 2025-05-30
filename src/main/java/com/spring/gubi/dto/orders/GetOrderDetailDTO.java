@@ -11,6 +11,9 @@ public class GetOrderDetailDTO {
     private Integer cnt; // 수량
     private Integer price; // 단가
 
+    private Long productNo;
+    private String productName;
+
     private Long optionNo; // 옵션 번호 (FK)
     private String optionName;
     private String optionColor;
@@ -20,6 +23,9 @@ public class GetOrderDetailDTO {
         this.id = orderDetail.getId();
         this.cnt = orderDetail.getCnt();
         this.price = orderDetail.getPrice();
+
+        this.productNo = orderDetail.getOption().getProduct().getId();
+        this.productName = orderDetail.getOption().getProduct().getName();
 
         this.optionNo = orderDetail.getOption().getId();
         this.optionName = orderDetail.getOption().getName();

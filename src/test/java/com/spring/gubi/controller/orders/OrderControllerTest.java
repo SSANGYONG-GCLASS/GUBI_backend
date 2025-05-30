@@ -151,7 +151,7 @@ public class OrderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.order.status").value(OrderStatus.ORDER_COMPLETED.toString()));
+                .andExpect(jsonPath("$.orderNo").isNumber());
     }
 
     @DisplayName("주문 등록 실패 존재하지 않는 회원 404 반환")
@@ -307,6 +307,41 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
+    @DisplayName("주문 한 개 조회 성공 200 반환")
+    @Test
+    void 주문_한_개_조회_성공() throws Exception {
+        // 주문 등록
+        List<Long> cartNoList = new ArrayList<>();
+        cartNoList.add(cart1.getId());
+        cartNoList.add(cart2.getId());
+
+        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+                .deliveryNo(delivery.getId())
+                .usePoint(10)
+                .status(OrderStatus.ORDER_COMPLETED)
+                .cartNoList(cartNoList)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(addRequest);
+
+        MvcResult result = mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        int orderNo = JsonPath.read(response, "$.orderNo");
+
+        // 주문 한 개 조회 시작
+        log.info("주문 한 개 조회 성공 테스트 시작");
+
+        mockMvc.perform(get("/api/orders/"+orderNo+"?userNo=" + user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.order.id").isNumber());
+    }
+
     @DisplayName("주문 상태 수정 성공 200 반환")
     @Test
     void 주문_상태_수정_성공() throws Exception {
@@ -332,7 +367,7 @@ public class OrderControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        int orderNo = JsonPath.read(response, "$.order.id");
+        int orderNo = JsonPath.read(response, "$.orderNo");
 
         // 주문 상태 수정
         UpdateOrderStatusRequest request = UpdateOrderStatusRequest.builder()
@@ -396,7 +431,7 @@ public class OrderControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        int orderNo = JsonPath.read(response, "$.order.id");
+        int orderNo = JsonPath.read(response, "$.orderNo");
 
         // 주문 배송일자 수정
         json = """
@@ -457,7 +492,7 @@ public class OrderControllerTest {
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
-        int orderNo = JsonPath.read(response, "$.order.id");
+        int orderNo = JsonPath.read(response, "$.orderNo");
 
         // 주문 삭제
         log.info("주문 삭제 성공 테스트 시작");

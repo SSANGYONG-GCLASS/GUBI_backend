@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddOrderDeliveryDTO {
+public class GetOneOrderDeliveryDTO {
     // 배송지
     private Long id; // 배송지 번호 (FK)
     private String deliveryName; // 배송지명
@@ -16,7 +16,7 @@ public class AddOrderDeliveryDTO {
     private Address address; // 주소클래스의 컬럼을 모두 가져옴(우편번호, 주소, 상세주소)
     private String memo; // 배송 시 요청사항
 
-    public AddOrderDeliveryDTO(Delivery delivery) {
+    public GetOneOrderDeliveryDTO(Delivery delivery) {
         this.id = delivery.getId();
         this.deliveryName = delivery.getDeliveryName();
         this.receiver = delivery.getReceiver();
