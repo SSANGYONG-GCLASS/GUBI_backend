@@ -55,7 +55,16 @@ public class DeliveryController {
     public  ResponseEntity<Map<String, String>> deleteDelivery(@PathVariable("id") Long id) throws IOException {
         deliveryService.deleteDelivery(id);
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message","배송지가 삭제되었습니다."));
-    }//end of public  ResponseEntity<Map<String, String>> deleteDelivery(@PathVariable("id") Long id) throws IOException {}...
+    }//end of public ResponseEntity<Map<String, String>> deleteDelivery(@PathVariable("id") Long id) throws IOException {}...
+    
+    
+    
+    // 배송지 목록 조회
+    @GetMapping(value = "/api/delivery")
+    public ResponseEntity<GetDeliverysResponse> getDelivery(@ModelAttribute GetDeliverysRequest request) throws IOException {
+        GetDeliverysResponse delivery = deliveryService.getDelivery(request);
+        return ResponseEntity.status(HttpStatus.OK).body(delivery);
+    }//end of
     
     
     
