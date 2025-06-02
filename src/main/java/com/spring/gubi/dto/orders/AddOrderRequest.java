@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Setter
 @Builder
 public class AddOrderRequest {
-    private Long userNo; // 회원 번호 (FK)
     private Long deliveryNo; // 배송지 번호 (FK)
     private Integer usePoint; // 포인트 사용금액
     private OrderStatus status; // 주문상태 (ENUM: 결제대기... 환불완료)
