@@ -1,18 +1,15 @@
 package com.spring.gubi.controller.orders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jayway.jsonpath.JsonPath;
 import com.spring.gubi.config.error.ErrorCode;
 import com.spring.gubi.domain.carts.Cart;
-import com.spring.gubi.domain.orders.Order;
 import com.spring.gubi.domain.orders.OrderStatus;
 import com.spring.gubi.domain.product.Option;
 import com.spring.gubi.domain.users.*;
 import com.spring.gubi.dto.orders.AddOrderRequest;
-import com.spring.gubi.dto.orders.UpdateOrderDeliveryDateRequest;
 import com.spring.gubi.dto.orders.UpdateOrderStatusRequest;
+import com.spring.gubi.dto.users.LoginUserRequest;
 import com.spring.gubi.repository.carts.CartRepository;
 import com.spring.gubi.repository.products.OptionRepository;
 import com.spring.gubi.repository.users.UserRepository;
@@ -26,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @ActiveProfiles("test")
+@TestPropertySource(properties = {
+        "jwt.secret=TestKeyJSDFKJLkjlkjlksjfdlkjflskdjSff"
+})
 public class OrderControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(OrderControllerTest.class);
@@ -68,27 +70,51 @@ public class OrderControllerTest {
     private Option option1;
     private Option option2;
     private Long notExistId = -1L; // 존재하지 않는 일련번호
+    private MockCookie accessTokenCookie;
 
     @BeforeEach
-    void setUp() {
-        Address address = new Address("1234", "Street 2", "City 1");
+    void setUp() throws Exception {
+//        Address address = new Address("1234", "Street 2", "City 1");
+//
+//        User user = User.builder()
+//                .userid("testOrder")
+//                .password("qwer1234$")
+//                .name("테스트")
+//                .email("testOrder@test.com")
+//                .role(UserRole.USER)
+//                .status(UserStatus.ACTIVE)
+//                .point(100)
+//                .address(address)
+//                .build();
 
-        User user = User.builder()
-                .userid("testOrder")
-                .password("qwer1234$")
-                .name("테스트")
-                .email("testOrder@test.com")
-                .role(UserRole.USER)
-                .status(UserStatus.ACTIVE)
-                .point(100)
-                .address(address)
-                .build();
+        this.user = userRepository.findById(2L).orElseThrow();
+
+        LoginUserRequest loginUserRequest = new LoginUserRequest();
+        loginUserRequest.setUserid(user.getUserid());
+        loginUserRequest.setPassword("qwer1234$");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(loginUserRequest);
+
+        MvcResult result = mockMvc.perform(post("/api/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("로그인 성공"))
+                .andReturn();
+
+        String response = result.getResponse().getContentAsString();
+        String accessToken = JsonPath.read(response, "$.accessToken");
+
+        // 쿠키로 저장
+        accessTokenCookie = new MockCookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
 
         this.user = userRepository.save(user);
 
         this.delivery = Delivery.builder()
                 .user(user)
-                .address(address)
+                .address(user.getAddress())
                 .deliveryName("테스트 배송지")
                 .receiver("테스트 수령인")
                 .receiverTel("01012341234")
@@ -135,7 +161,7 @@ public class OrderControllerTest {
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest request = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest request = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -148,36 +174,11 @@ public class OrderControllerTest {
         log.info("주문 등록 성공 테스트 시작");
 
         mockMvc.perform(post("/api/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.orderNo").isNumber());
-    }
-
-    @DisplayName("주문 등록 실패 존재하지 않는 회원 404 반환")
-    @Test
-    void 주문_등록_실패_존재하지_않는_회원() throws Exception {
-        List<Long> cartNoList = new ArrayList<>();
-        cartNoList.add(cart1.getId());
-        cartNoList.add(cart2.getId());
-
-        AddOrderRequest request = AddOrderRequest.builder().userNo(0L)
-                .deliveryNo(delivery.getId())
-                .usePoint(10)
-                .status(OrderStatus.ORDER_COMPLETED)
-                .cartNoList(cartNoList)
-                .build();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(request);
-
-        log.info("주문 등록 실패 존재하지 않는 회원 테스트 시작");
-
-        mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.orderNo").isNumber());
     }
 
     @DisplayName("주문 등록 실패 존재하지 않는 장바구니 404 반환")
@@ -187,7 +188,7 @@ public class OrderControllerTest {
         cartNoList.add(notExistId);
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest request = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest request = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -200,6 +201,7 @@ public class OrderControllerTest {
         log.info("주문 등록 실패 존재하지 않는 장바구니 테스트 시작");
 
         mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound())
@@ -213,9 +215,9 @@ public class OrderControllerTest {
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest request = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest request = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
-                .usePoint(200)
+                .usePoint(999999999)
                 .status(OrderStatus.ORDER_COMPLETED)
                 .cartNoList(cartNoList)
                 .build();
@@ -226,20 +228,21 @@ public class OrderControllerTest {
         log.info("주문 등록 실패 포인트 잔액 부족 테스트 시작");
 
         mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(ErrorCode.INSUFFICIENT_POINT_BALANCE.getMessage()));
     }
 
-    @DisplayName("주문 등록 실패 존재하지 않는 배송지 400 반환")
+    @DisplayName("주문 등록 실패 존재하지 않는 배송지 404 반환")
     @Test
     void 주문_등록_실패_존재하지_않는_배송지() throws Exception {
         List<Long> cartNoList = new ArrayList<>();
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest request = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest request = AddOrderRequest.builder()
                 .deliveryNo(notExistId)
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -252,6 +255,7 @@ public class OrderControllerTest {
         log.info("주문 등록 실패 존재하지 않는 배송지 테스트 시작");
 
         mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound())
@@ -266,7 +270,7 @@ public class OrderControllerTest {
         cartNoList.add(cart2.getId());
         cartNoList.add(cart3.getId());
 
-        AddOrderRequest request = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest request = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -279,6 +283,7 @@ public class OrderControllerTest {
         log.info("주문 등록 실패 상품 재고 부족 테스트 시작");
 
         mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
@@ -291,20 +296,10 @@ public class OrderControllerTest {
 
         log.info("주문 조회 성공 테스트 시작");
 
-        mockMvc.perform(get("/api/orders?userNo=" + user.getId()))
+        mockMvc.perform(get("/api/orders")
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orders").isArray());
-    }
-
-    @DisplayName("주문 조회 실패 존재하지 않는 회원 404 반환")
-    @Test
-    void 주문_조회_실패_존재하지_않는_회원() throws Exception {
-
-        log.info("주문 조회 성공 테스트 시작");
-
-        mockMvc.perform(get("/api/orders?userNo=" + notExistId))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     @DisplayName("주문 한 개 조회 성공 200 반환")
@@ -315,7 +310,7 @@ public class OrderControllerTest {
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest addRequest = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -326,6 +321,7 @@ public class OrderControllerTest {
         String json = objectMapper.writeValueAsString(addRequest);
 
         MvcResult result = mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -337,7 +333,8 @@ public class OrderControllerTest {
         // 주문 한 개 조회 시작
         log.info("주문 한 개 조회 성공 테스트 시작");
 
-        mockMvc.perform(get("/api/orders/"+orderNo+"?userNo=" + user.getId()))
+        mockMvc.perform(get("/api/orders/"+orderNo)
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.order.id").isNumber());
     }
@@ -350,7 +347,7 @@ public class OrderControllerTest {
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest addRequest = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -361,6 +358,7 @@ public class OrderControllerTest {
         String json = objectMapper.writeValueAsString(addRequest);
 
         MvcResult result = mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -379,6 +377,7 @@ public class OrderControllerTest {
         log.info("주문 상태 수정 성공 테스트 시작");
 
         mockMvc.perform(put("/api/orders/"+orderNo+"/status")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
@@ -400,6 +399,7 @@ public class OrderControllerTest {
         log.info("주문 상태 수정 실패 존재하지 않는 주문 테스트 시작");
 
         mockMvc.perform(put("/api/orders/"+notExistId+"/status")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound())
@@ -414,7 +414,7 @@ public class OrderControllerTest {
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest addRequest = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -425,6 +425,7 @@ public class OrderControllerTest {
         String json = objectMapper.writeValueAsString(addRequest);
 
         MvcResult result = mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -443,8 +444,9 @@ public class OrderControllerTest {
         log.info("주문 배송일자 수정 성공 테스트 시작");
 
         mockMvc.perform(put("/api/orders/"+orderNo+"/delivery-date")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .cookie(accessTokenCookie)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("배송일자 수정이 완료되었습니다."));
     }
@@ -461,8 +463,9 @@ public class OrderControllerTest {
         log.info("주문 배송일자 수정 실패 존재하지 않는 주문 테스트 시작");
 
         mockMvc.perform(put("/api/orders/"+notExistId+"/status")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+                        .cookie(accessTokenCookie)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
     }
@@ -475,7 +478,7 @@ public class OrderControllerTest {
         cartNoList.add(cart1.getId());
         cartNoList.add(cart2.getId());
 
-        AddOrderRequest addRequest = AddOrderRequest.builder().userNo(user.getId())
+        AddOrderRequest addRequest = AddOrderRequest.builder()
                 .deliveryNo(delivery.getId())
                 .usePoint(10)
                 .status(OrderStatus.ORDER_COMPLETED)
@@ -486,6 +489,7 @@ public class OrderControllerTest {
         String json = objectMapper.writeValueAsString(addRequest);
 
         MvcResult result = mockMvc.perform(post("/api/orders")
+                        .cookie(accessTokenCookie)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -497,7 +501,8 @@ public class OrderControllerTest {
         // 주문 삭제
         log.info("주문 삭제 성공 테스트 시작");
 
-        mockMvc.perform(delete("/api/orders/"+orderNo))
+        mockMvc.perform(delete("/api/orders/"+orderNo)
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("주문이 삭제되었습니다."));
     }
@@ -507,7 +512,8 @@ public class OrderControllerTest {
     void 주문_삭제_실패_존재하지_않는_주문() throws Exception {
         log.info("주문 삭제 실패 존재하지 않는 주문 테스트 시작");
 
-        mockMvc.perform(delete("/api/orders/"+notExistId))
+        mockMvc.perform(delete("/api/orders/"+notExistId)
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value(ErrorCode.ORDER_NOT_FOUND.getMessage()));
 
@@ -518,18 +524,9 @@ public class OrderControllerTest {
     void 주문을_위한_회원_정보_조회_성공() throws Exception {
         log.info("주문을 위한 회원 정보 조회 성공 테스트 시작");
 
-        mockMvc.perform(get("/api/orders/user-detail?userNo="+user.getId()))
+        mockMvc.perform(get("/api/orders/user-detail")
+                        .cookie(accessTokenCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("테스트"));
-    }
-
-    @DisplayName("주문을 위한 회원 정보 조회 실패 존재하지 않는 회원 404 반환")
-    @Test
-    void 주문을_위한_회원_정보_조회_실패_존재하지_않는_회원() throws Exception {
-        log.info("주문을 위한 회원 정보 조회 실패 존재하지 않는 회원 테스트 시작");
-
-        mockMvc.perform(get("/api/orders/user-detail?userNo="+notExistId))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .andExpect(jsonPath("$.name").isString());
     }
 }
