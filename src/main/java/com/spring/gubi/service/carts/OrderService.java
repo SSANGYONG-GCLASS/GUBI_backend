@@ -46,14 +46,14 @@ public class OrderService {
     }
 
     @Transactional
-    public AddOrderResponse saveOrder(AddOrderRequest request) {
-        User user = userRepository.findById(request.getUserNo())
+    public AddOrderResponse saveOrder(String userId, AddOrderRequest request) {
+        User user = userRepository.findByUserid(userId)
                 .orElseThrow(UserNotFondException::new);
 
         Delivery delivery = deliveryRepository.findByIdAndUser_Id(request.getDeliveryNo(), request.getUserNo())
                 .orElseThrow(DeliveryNotFoundException::new);
 
-        List<Cart> carts = cartRepository.findByIdInAndUser_Id(request.getCartNoList(), request.getUserNo());
+        List<Cart> carts = cartRepository.findByIdInAndUser_Userid(request.getCartNoList(), userId);
         // 장바구니가 모두 존재하는지 확인
         if (carts.size() != request.getCartNoList().size()) {
             throw new CartNotFoundException();

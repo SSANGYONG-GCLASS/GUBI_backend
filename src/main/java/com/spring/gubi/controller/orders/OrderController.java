@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -36,8 +37,9 @@ public class OrderController {
     }
 
     @PostMapping("/api/orders")
-    public ResponseEntity<AddOrderResponse> addOrder(@RequestBody AddOrderRequest request) {
-        AddOrderResponse response = orderService.saveOrder(request);
+    public ResponseEntity<AddOrderResponse> addOrder(Authentication authentication, @RequestBody AddOrderRequest request) {
+        String userId = (String) authentication.getPrincipal();
+        AddOrderResponse response = orderService.saveOrder(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -26,18 +26,15 @@ public class CartService {
     private final OptionRepository optionRepository;
 
     // 한 회원의 장바구니 목록 가져오기
-    public GetCartResponse getCartsByUser_Id(GetCartRequest request) {
-        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
-
-        List<Cart> carts = cartRepository.findByUser_Id(user.getId());
-
+    public GetCartResponse getCartsByUser_Id(String userId) {
+        List<Cart> carts = cartRepository.findByUser_Userid(userId);
         return new GetCartResponse(carts);
     }
 
     // 장바구니 저장, 같은 회원의 같은 상품 옵션이 존재하면 수량을 추가
     @Transactional
-    public void saveCart(AddCartRequest request) {
-        User user = userRepository.findById(request.getUserNo())
+    public void saveCart(String userId, AddCartRequest request) {
+        User user = userRepository.findByUserid(userId)
                 .orElseThrow(UserNotFondException::new);
 
         Option option = optionRepository.findById(request.getOptionNo())
@@ -60,8 +57,8 @@ public class CartService {
 
     // 장바구니 수량을 변경
     @Transactional
-    public void updateCart(Long id, UpdateCartCntRequest request) {
-        Cart cart = cartRepository.findByIdAndUser_Id(id, request.getUserNo())
+    public void updateCart(String userId, Long id, UpdateCartCntRequest request) {
+        Cart cart = cartRepository.findByIdAndUser_Userid(id, userId)
                 .orElseThrow(CartNotFoundException::new);
 
         if(cart.getOption().getCnt() > request.getCnt()) { // 상품 재고가 장바구니 수량보다 많은 경우
@@ -75,17 +72,14 @@ public class CartService {
 
     // 장바구니 삭제
     @Transactional
-    public void deleteCart(Long id) {
-        Cart cart = cartRepository.findById(id).orElseThrow(CartNotFoundException::new); // TODO: 로그인 유저 확인하기
+    public void deleteCart(String userId, Long id) {
+        Cart cart = cartRepository.findByIdAndUser_Userid(id, userId).orElseThrow(CartNotFoundException::new);
         cartRepository.delete(cart);
     }
 
-    public GetCartForOrderResponse getCartsByIdIn(GetCartForOrderRequest request) {
-        User user = userRepository.findById(request.getUserNo())
-                .orElseThrow(UserNotFondException::new);
-
-        List<Cart> carts = cartRepository.findByIdInAndUser_Id(request.getCartNoList(), user.getId());
-
+    // 장바구니 일련번호 리스트로 장바구니 목록 가져오기(결제 시 필요)
+    public GetCartForOrderResponse getCartsByIdIn(String userId, GetCartForOrderRequest request) {
+        List<Cart> carts = cartRepository.findByIdInAndUser_Userid(request.getCartNoList(), userId);
         return new GetCartForOrderResponse(carts);
     }
 }
