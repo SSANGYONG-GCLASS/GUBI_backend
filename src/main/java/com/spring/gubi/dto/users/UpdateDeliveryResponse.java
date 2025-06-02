@@ -12,7 +12,7 @@ public class UpdateDeliveryResponse {
     private Long userNo;
     
     // 배송지명
-    private String deleveryName;
+    private String deliveryName;
     
     // 수령인
     private String receiver;
@@ -35,7 +35,7 @@ public class UpdateDeliveryResponse {
     public String toString() {
         return "AddDeliveryResponse{" +
                 "userNo=" + userNo +
-                ", deleveryName='" + deleveryName + '\'' +
+                ", deleveryName='" + deliveryName + '\'' +
                 ", receiver='" + receiver + '\'' +
                 ", receiverTel='" + receiverTel + '\'' +
                 ", zipcode='" + zipcode + '\'' +
@@ -48,7 +48,7 @@ public class UpdateDeliveryResponse {
     // 다시 엔티티객체를 리스폰스 타입으로 변환해주는 메소드
     public UpdateDeliveryResponse(Delivery delivery) {
         this.userNo = delivery.getUser().getId();
-        this.deleveryName = delivery.getDeliveryName();
+        this.deliveryName = delivery.getDeliveryName();
         this.receiver = delivery.getReceiver();
         this.receiverTel = delivery.getReceiverTel();
         this.zipcode = delivery.getAddress().getZipcode();
