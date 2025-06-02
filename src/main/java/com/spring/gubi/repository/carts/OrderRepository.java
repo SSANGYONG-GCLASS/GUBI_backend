@@ -14,6 +14,9 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    @Query("SELECT o FROM Order o JOIN FETCH o.delivery JOIN FETCH o.orderDetails od JOIN FETCH od.option op WHERE o.user.id = :id AND o.status IN :statuses")
+    @Query("SELECT o FROM Order o JOIN FETCH o.delivery JOIN FETCH o.orderDetails od JOIN FETCH od.option op JOIN FETCH op.product p WHERE o.user.id = :id AND o.status IN :statuses")
     Optional<Page<Order>> findByUser_IdAndStatusIn(Long id, List<OrderStatus> statuses, Pageable pageable);
+
+    @Query("SELECT o FROM Order o JOIN FETCH o.delivery JOIN FETCH o.orderDetails od JOIN FETCH od.option op JOIN FETCH op.product p WHERE o.id = :orderNo AND o.user.id = :userNo")
+    Optional<Order> findByIdAndUser_Id(Long orderNo, Long userNo);
 }

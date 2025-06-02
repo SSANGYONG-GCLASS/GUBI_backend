@@ -8,10 +8,12 @@ public class GetUserDetailForOrderResponse {
     String name;
     String email;
     String tel;
+    int point;
 
     public GetUserDetailForOrderResponse(User user) {
         this.name = user.getName();
         this.email = user.getEmail();
         this.tel = user.getTel();
+        this.point = user.getPoint();
     }
 }

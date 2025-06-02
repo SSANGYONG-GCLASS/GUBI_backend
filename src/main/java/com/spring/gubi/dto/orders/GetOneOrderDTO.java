@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class AddOrderDTO {
+public class GetOneOrderDTO {
     private Long id; // 주문 번호 (시퀀스 자동 증가)
     private Long totalPrice; // 총 주문 금액
     private Integer usePoint; // 포인트 사용금액
@@ -23,12 +23,12 @@ public class AddOrderDTO {
     private LocalDateTime deliveryDate; // 배송완료일자
 
     // 배송지
-    private AddOrderDeliveryDTO delivery;
+    private GetOneOrderDeliveryDTO delivery;
 
     // 주문 상세 목록
-    private List<AddOrderDetailDTO> orderDetails;
+    private List<GetOneOrderDetailDTO> orderDetails;
 
-    public AddOrderDTO(Order order) {
+    public GetOneOrderDTO(Order order) {
         this.id = order.getId();
         this.totalPrice = order.getTotalPrice();
         this.usePoint = order.getUsePoint();
@@ -39,8 +39,8 @@ public class AddOrderDTO {
         this.status = order.getStatus();
         this.deliveryDate = order.getDeliveryDate();
 
-        this.delivery = new AddOrderDeliveryDTO(order.getDelivery());
+        this.delivery = new GetOneOrderDeliveryDTO(order.getDelivery());
 
-        this.orderDetails = order.getOrderDetails().stream().map(AddOrderDetailDTO::new).collect(Collectors.toList());
+        this.orderDetails = order.getOrderDetails().stream().map(GetOneOrderDetailDTO::new).collect(Collectors.toList());
     }
 }

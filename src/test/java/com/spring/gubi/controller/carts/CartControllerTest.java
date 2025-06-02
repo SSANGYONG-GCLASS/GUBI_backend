@@ -139,6 +139,7 @@ public class CartControllerTest {
     @Test
     void 장바구니_수정_성공() throws Exception {
         UpdateCartCntRequest request = UpdateCartCntRequest.builder()
+                .userNo(user.getId())
                 .cnt(1)
                 .build();
 
@@ -156,6 +157,7 @@ public class CartControllerTest {
     @Test
     void 장바구니_수정_실패_존재하지_않는_장바구니() throws Exception {
         UpdateCartCntRequest request = UpdateCartCntRequest.builder()
+                .userNo(user.getId())
                 .cnt(1)
                 .build();
 
