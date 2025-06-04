@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
 
 /**
  * Email을 보내는 발송 로직이 들어있는 service로 발송 자체에만 집중할 수 있게 나눴습니다.
@@ -40,12 +41,13 @@ public class EmailSendService {
     
     /**
      * 이메일 발송을 위한 로직으로, 랜덤코드와 템플릿(내용) 을 가지고
-     * 메일 발송 후 redis에 2분간 저장합니다.
+     * 메일 발송 후 redis에 3분간 저장합니다.
      * 
      * @param toEmail 수취인 이메일
      * @param title	  발송할 메일의 제목
      * @return 랜덤코드 값
      */
+    @Transactional
     public String sendAuthEmail(String toEmail, String title) {
         String certification_code = emailTemplateService.generateAuthCode();
         String content = emailTemplateService.buildAuthEmailContent(certification_code);
@@ -70,6 +72,7 @@ public class EmailSendService {
      * @return 없음
      * @throws MessagingException 메일이 발송되지 않았을 경우 발생
      */
+    @Transactional
     private void mailSend(String from, String to, String title, String content) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -93,6 +96,7 @@ public class EmailSendService {
      * @param email 사용자의 이메일
      * @return boolean 값
      */
+    @Transactional
     public boolean emailAuthCheck(String code, String email) {
         return Optional.ofNullable(redisTemplate.opsForValue().get(email))
                        .map(storedCode -> storedCode.equals(code))

@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.gubi.dto.jwt.TokenRefreshResponse;
 import com.spring.gubi.dto.users.AuthRequest;
+import com.spring.gubi.dto.users.EmailAndUserIdCheckRequest;
+import com.spring.gubi.dto.users.EmailAndUserIdCheckResponse;
 import com.spring.gubi.dto.users.EmailCheckRequest;
 import com.spring.gubi.dto.users.FindIdResponse;
 import com.spring.gubi.dto.users.LoginUserRequest;
@@ -119,6 +121,53 @@ public class AuthController {
 		
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
+	
+	
+	
+	/**
+	 * 이메일과 아이디가 맞는지 체크합니다.
+	 * 
+	 * @param request 체크 요청 정보 (아이디, 이메일 등)
+	 * @return 체크 결과 메시지
+	 */
+	@PostMapping("/api/user/emailAndUseridCheck")
+	public ResponseEntity<EmailAndUserIdCheckResponse> emailAndUseridCheck(@RequestBody EmailAndUserIdCheckRequest request) {
+		EmailAndUserIdCheckResponse response = authService.emailAndUseridCheck(request);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
+	
+	
+	/**
+     * 사용자가 입력한 이메일로 인증번호를 발송합니다.
+     * 
+     * @param request 이메일 발송 요청 정보 (아이디, 이메일 등)
+	 * @param 이메일 체크를 담을 응답 객체
+	 * @return 체크 결과 메시지
+     */
+	@PostMapping("/api/user/emailSend")
+	public ResponseEntity<Map<String, String>> emailSend(@RequestBody EmailAndUserIdCheckRequest request){
+		authService.emailSend(request);
+		
+		return ResponseEntity.ok().body(Map.of("message", "메일이 전송되었습니다."));
+	}
+	
+	
+	
+	/**
+	 * 인증번호가맞는지 체크합니다.
+	 * 
+	 * @param request 인증번호 발송 요청 정보 (이메일, 인증번호)
+	 * @return 인증 결과 메시지
+	 */
+	@PostMapping("/api/user/emailCodeAuthCheck")
+	public ResponseEntity<Map<String, String>> emailCodeAuthCheck (@RequestBody AuthRequest request) {
+		authService.emailCodeAuthCheck(request);
+		
+		return ResponseEntity.ok().body(Map.of("message", "인증이 완료되었습니다."));
+	}
+	
 	
 	
 }
