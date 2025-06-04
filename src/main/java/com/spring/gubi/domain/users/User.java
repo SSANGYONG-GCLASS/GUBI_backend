@@ -2,8 +2,13 @@ package com.spring.gubi.domain.users;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import com.spring.gubi.config.error.ErrorCode;
 import com.spring.gubi.config.error.exception.BusinessBaseException;
+import com.spring.gubi.dto.carts.UpdateCartCntRequest;
+import com.spring.gubi.dto.users.UpdatePasswordRequest;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -99,4 +104,25 @@ public class User {
 			log.info("{}번 회원 포인트 차감 결과: {}", this.id, this.point);
 		}
     }
+    
+    
+//    public static User create(String userid, String password, String name, ...) {
+//        return User.builder()
+//            .userid(userid)
+//            .password(password)
+//            .name(name)
+//            // 기타 필드들 세팅
+//            .status(UserStatus.ACTIVE)
+//            .role(UserRole.USER)
+//            .build();
+//    }
+    
+    
+    // 비밀번호 변경 메소드
+    public void updatePassword(String newPassword) {
+    	
+        this.password = newPassword;
+        
+    }
+    
 } // end of class...
