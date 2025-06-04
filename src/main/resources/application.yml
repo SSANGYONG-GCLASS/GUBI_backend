@@ -45,7 +45,7 @@ spring:
 
 
   aes:
-    secret: 12345678901234567890123456789012
+    secret: ${AES_SECRET}
 
   mail:
     host: smtp.gmail.com
