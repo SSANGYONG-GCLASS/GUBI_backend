@@ -4,6 +4,8 @@ import com.spring.gubi.domain.users.Delivery;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class UpdateDeliveryResponse {
@@ -55,9 +57,28 @@ public class UpdateDeliveryResponse {
         this.address = delivery.getAddress().getAddress();
         this.detailAddress = delivery.getAddress().getDetailAddress();
         this.memo = delivery.getMemo();
-        this.isDefault = delivery.getIsDefault().toString(); // 이게 맞나...?
+        this.isDefault = delivery.getIsDefault().toString();
     }
     
+    // 배송지 리스트를 받아서 수정된 배송지만을 리스폰스 타입으로 변환해주는 메소드
+    public UpdateDeliveryResponse(List<Delivery> deliveryList, UpdateDeliveryRequest request) {
+        for (Delivery delivery : deliveryList) {
+            if (delivery.getId() == request.getDeliveryNo()) {
+                this.userNo = delivery.getUser().getId();
+                this.deliveryName = delivery.getDeliveryName();
+                this.receiver = delivery.getReceiver();
+                this.receiverTel = delivery.getReceiverTel();
+                this.zipcode = delivery.getAddress().getZipcode();
+                this.address = delivery.getAddress().getAddress();
+                this.detailAddress = delivery.getAddress().getDetailAddress();
+                this.memo = delivery.getMemo();
+                this.isDefault = delivery.getIsDefault().toString();
+                
+                // 찾으면 그 상태로 중지해서 나오자
+                break;
+            }//end of if (delivery.getId() == request.getDeliveryNo()) {}...
+        }//end of for...
+    }//end of public UpdateDeliveryResponse(List<Delivery> deliveryList, UpdateDeliveryRequest request) {}...
     
     
 }//end of class...
