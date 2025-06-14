@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 @Builder
 public class AddCartRequest {
-    private Long userNo; // 회원 번호 (FK)
     private Long optionNo; // 옵션 번호 (FK)
     private Integer cnt; // 수량
 

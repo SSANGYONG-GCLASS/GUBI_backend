@@ -30,30 +30,27 @@ public class OrderService {
     private final DeliveryRepository deliveryRepository;
 
     @Transactional(readOnly = true)
-    public GetOrderResponse getOrdersByUser_Id(GetOrderRequest request) {
-        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
-
-        Page<Order> orders = orderRepository.findByUser_IdAndStatusIn(user.getId(), request.getStatuses(), request.getPageable())
+    public GetOrderResponse getOrdersByUser_Userid(String userId, GetOrderRequest request) {
+        Page<Order> orders = orderRepository.findByUser_UseridAndStatusIn(userId, request.getStatuses(), request.getPageable())
                 .orElseThrow();
         Pagination pagination = PagingUtil.getPagination(orders, 5);
         return new GetOrderResponse(orders, pagination);
     }
 
-    public GetOneOrderResponse getOrdersById(Long id, GetOneOrderRequest request) {
-        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
-        Order order = orderRepository.findByIdAndUser_Id(id, user.getId()).orElseThrow(OrderNotFoundException::new);
+    public GetOneOrderResponse getOrdersById(String userId, Long id) {
+        Order order = orderRepository.findByIdAndUser_Userid(id, userId).orElseThrow(OrderNotFoundException::new);
         return new GetOneOrderResponse(order);
     }
 
     @Transactional
-    public AddOrderResponse saveOrder(AddOrderRequest request) {
-        User user = userRepository.findById(request.getUserNo())
+    public AddOrderResponse saveOrder(String userId, AddOrderRequest request) {
+        User user = userRepository.findByUserid(userId)
                 .orElseThrow(UserNotFondException::new);
 
-        Delivery delivery = deliveryRepository.findByIdAndUser_Id(request.getDeliveryNo(), request.getUserNo())
+        Delivery delivery = deliveryRepository.findByIdAndUser_Id(request.getDeliveryNo(), user.getId())
                 .orElseThrow(DeliveryNotFoundException::new);
 
-        List<Cart> carts = cartRepository.findByIdInAndUser_Id(request.getCartNoList(), request.getUserNo());
+        List<Cart> carts = cartRepository.findByIdInAndUser_Userid(request.getCartNoList(), userId);
         // 장바구니가 모두 존재하는지 확인
         if (carts.size() != request.getCartNoList().size()) {
             throw new CartNotFoundException();
@@ -77,25 +74,25 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateOrderStatus(Long id, UpdateOrderStatusRequest request) { // TODO: 관리자 검증 필요
-        Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+    public void updateOrderStatus(String userId, Long id, UpdateOrderStatusRequest request) {
+        Order order = orderRepository.findByIdAndUser_Userid(id, userId).orElseThrow(OrderNotFoundException::new);
         order.updateStatus(request);
     }
 
     @Transactional
-    public void updateOrderDeliveryDate(Long id, UpdateOrderDeliveryDateRequest request) { // TODO: 관리자 검증 필요
-        Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+    public void updateOrderDeliveryDate(String userId, Long id, UpdateOrderDeliveryDateRequest request) {
+        Order order = orderRepository.findByIdAndUser_Userid(id, userId).orElseThrow(OrderNotFoundException::new);
         order.updateDeliveryDate(request);
     }
 
     @Transactional
-    public void deleteOrder(Long id) { // TODO: 회원번호 검증 또는 관리자 검증 필요
-        Order order = orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+    public void deleteOrder(String userId, Long id) {
+        Order order = orderRepository.findByIdAndUser_Userid(id, userId).orElseThrow(OrderNotFoundException::new);
         orderRepository.delete(order);
     }
 
-    public GetUserDetailForOrderResponse getUserDetailForOrder(GetUserDetailForOrderRequest request) {
-        User user = userRepository.findById(request.getUserNo()).orElseThrow(UserNotFondException::new);
+    public GetUserDetailForOrderResponse getUserDetailForOrder(String userId) {
+        User user = userRepository.findByUserid(userId).orElseThrow(UserNotFondException::new);
         return new GetUserDetailForOrderResponse(user);
     }
 }

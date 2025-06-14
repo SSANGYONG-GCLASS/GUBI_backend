@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U1", "존재하지 않는 회원입니다."),
     INSUFFICIENT_POINT_BALANCE(HttpStatus.BAD_REQUEST, "U2", "포인트 잔액이 부족합니다."),
+    ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U3", "암호화 처리 중 오류가 발생했습니다."),
 
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OP1", "존재하지 않는 상품 옵션입니다."),
 
