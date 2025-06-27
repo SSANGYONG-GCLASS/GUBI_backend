@@ -72,6 +72,7 @@ public class Delivery {
     }
     
     
+    
     // fk_user_no BIGINT NOT NULL,                                     -- 외래키: users.user_no
     // delivery_name VARCHAR(255) NOT NULL,                            -- 배송지명
     // receiver VARCHAR(255) NOT NULL,                                 -- 수령인
