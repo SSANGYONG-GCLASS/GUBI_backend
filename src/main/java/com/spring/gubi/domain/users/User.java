@@ -85,6 +85,9 @@ public class User {
 	@Builder.Default
 	private LocalDateTime passwdupdateday = LocalDateTime.now(); // 비밀번호 변경일자
 	
+	@Column(name = "lastloginat")
+	@Builder.Default
+	private LocalDateTime lastloginat = LocalDateTime.now(); // 최종 로그인 일자
 	
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)
@@ -106,17 +109,18 @@ public class User {
     }
     
     
-//    public static User create(String userid, String password, String name, ...) {
-//        return User.builder()
-//            .userid(userid)
-//            .password(password)
-//            .name(name)
-//            // 기타 필드들 세팅
-//            .status(UserStatus.ACTIVE)
-//            .role(UserRole.USER)
-//            .build();
-//    }
+
     
+    // 최종 로그인 시간을 기록하기 위한 메소드
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+		this.lastloginat = lastLoginAt;
+    }
+
+
+    // 유저 상태를 IDLE, 또는 ACTIVE로 변경하기 위한 메소드
+    public void updateStatus(UserStatus newStatus) {
+        this.status = newStatus;
+    }
     
     // 비밀번호 변경 메소드
     public void updatePassword(String newPassword) {
@@ -124,5 +128,6 @@ public class User {
         this.password = newPassword;
         
     }
+
     
 } // end of class...
