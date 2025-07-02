@@ -18,11 +18,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserid(@Param("userid") String userid);
 
     @Query("SELECT u FROM User u WHERE u.name = :name AND u.email = :email")
-	Optional<User> findByNameAndEmail(@Param("name")String name, @Param("email") String email);
+	  Optional<User> findByNameAndEmail(@Param("name")String name, @Param("email") String email);
 
     @Query("SELECT u FROM User u WHERE u.status = :status AND u.lastloginat < :dateTime")
     List<User> findAllByStatusAndLastloginatBefore(@Param("status") UserStatus status, @Param("dateTime") LocalDateTime dateTime);
 
+    @Query("SELECT u FROM User u WHERE u.userid = :userid AND u.email = :email")
+	Optional<User> findbyUseridAndEmail(@Param("userid") String userid, @Param("email") String email);
     
     
 }

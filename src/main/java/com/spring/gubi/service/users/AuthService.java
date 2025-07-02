@@ -20,6 +20,8 @@ import com.spring.gubi.domain.users.User;
 import com.spring.gubi.domain.users.UserStatus;
 import com.spring.gubi.dto.jwt.TokenRefreshResponse;
 import com.spring.gubi.dto.users.AuthRequest;
+import com.spring.gubi.dto.users.EmailAndUserIdCheckRequest;
+import com.spring.gubi.dto.users.EmailAndUserIdCheckResponse;
 import com.spring.gubi.dto.users.EmailCheckRequest;
 import com.spring.gubi.dto.users.FindIdResponse;
 import com.spring.gubi.dto.users.LoginUserRequest;
@@ -29,7 +31,9 @@ import com.spring.gubi.service.email.EmailSendService;
 import com.spring.gubi.service.jwt.RefreshTokenService;
 import com.spring.gubi.util.HttpOnlyCookie;
 
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -65,6 +69,7 @@ public class AuthService {
 	 * @return 로그인 결과와 함께 액세스 토큰, 리프레시 토큰 정보를 담은 응답 객체
 	 * @throws BusinessBaseException 아이디가 존재하지 않거나 비밀번호가 일치하지 않을 경우 발생
 	 */
+	@Transactional
 	public LoginUserResponse login(HttpServletResponse httpResponse, LoginUserRequest request) {
 		
 		User user = userRepository.findByUserid(request.getUserid())
@@ -120,6 +125,7 @@ public class AuthService {
 	 * @return 새로운 액세스 토큰 정보가 담긴 응답 객체
 	 * @throws AuthenticationRequiredException 리프레시 토큰이 유효하지 않을 경우 발생
 	 */ 
+	@Transactional
 	public ResponseEntity<TokenRefreshResponse> refreshToken(HttpServletResponse httpResponse, String refreshToken) {
 		
 	    if (refreshToken != null && jwtProvider.validateToken(refreshToken)) {
@@ -155,6 +161,7 @@ public class AuthService {
 	 * @param userId Spring Security가 자동 주입하는 인증 정보 객체 (userId)
 	 * @return 없음
 	 */
+	@Transactional
 	public void logoutUser(HttpServletResponse httpResponse, String userId) {
 		// DB의 RefreshToken 삭제
 		refreshTokenService.deleteRefreshToken(userId);
@@ -176,6 +183,7 @@ public class AuthService {
 	 * 
 	 * @see https://mingdodev.github.io/blog/dev/2024-05-07-SMTP-spring-boot/
 	 */
+	@Transactional
 	public void emailCheckAndSend(EmailCheckRequest request) {
 		
 		// 사용자 존재 여부
@@ -197,6 +205,7 @@ public class AuthService {
 	 * @throws EMAIL_AUTH_FAILED 인증코드가 잘못되었을 시에 발생
 	 * @throws USER_NOT_FOUND 사용자의 이름과 이메일이 잘못되었을 때 발생 -> 발생할 확률 x
 	 */
+	@Transactional
 	public FindIdResponse emailAuthCheck(AuthRequest request) {
 		
 		if (!emailSendService.emailAuthCheck(request.getCode(), request.getEmail())) {
@@ -208,6 +217,52 @@ public class AuthService {
 
 	    return new FindIdResponse(user.getUserid(), user.getName());
 	} // end of public FindIdResponse emailAuthCheck(AuthRequest request) ----------------
+
+
+
+	/**
+	 * 아이디와 이메일을 체크하는 메소드로,
+	 * 사용자가 입력한 값을 토대로 DB 데이터와 조회합니다.
+	 * 
+	 * @param request 사용자가 입력한 이메일 주소, 아이디
+	 * @return 메세지를 담은 응답 객체
+	 * @throws USER_NOT_FOUND 사용자의 아이디와 이메일이 잘못되었을 때 발생
+	 */
+	@Transactional
+	public EmailAndUserIdCheckResponse emailAndUseridCheck(EmailAndUserIdCheckRequest request) {
+		userRepository.findbyUseridAndEmail(request.getUserid(), request.getEmail())
+			.orElseThrow(() -> new BusinessBaseException(ErrorCode.USER_NOT_FOUND));
+		return new EmailAndUserIdCheckResponse("아이디와 이메일이 일치합니다.");
+	} // end of public EmailAndUserIdCheckResponse emailAndUseridCheck(EmailAndUserIdCheckRequest request) ----------------
+
+
+
+	/**
+	 * 비밀번호찾기 로직에서 이메일을 전송합니다.
+	 * 
+	 * @param request 사용자가 입력한 이메일 주소
+	 * @return 없음
+	 * @throws MessagingException 메일이 발송되지 않았을 경우 발생
+	 */
+	@Transactional
+	public void emailSend(EmailAndUserIdCheckRequest request) {
+		emailSendService.sendAuthEmail(request.getEmail(), "[gubi] 비밀번호 찾기 인증번호");
+	} // end of public void emailSend(EmailAndUserIdCheckRequest request) ----------------
+
+
+
+	/**
+	 * 비밀번호찾기 로직에서 인증번호를 인증하는 메서드입니다.
+	 * 
+	 * @param request 이메일 주소, 인증번호
+	 * @return 없음
+	 * @throws EMAIL_AUTH_FAILED 인증코드가 잘못되었을 시에 발생
+	 */
+	public void emailCodeAuthCheck(AuthRequest request) {
+		if(!emailSendService.emailAuthCheck(request.getCode(), request.getEmail())) {
+			throw new BusinessBaseException(ErrorCode.EMAIL_AUTH_FAILED);
+		}
+	} // end of public void emailCodeAuthCheck(AuthRequest request) ----------------
 	
 	
 	

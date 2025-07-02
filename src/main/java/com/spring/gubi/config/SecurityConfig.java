@@ -67,6 +67,10 @@ public class SecurityConfig {
                 mvc.pattern(HttpMethod.POST, "/api/user/register"),
                 mvc.pattern(HttpMethod.POST, "/api/user/emailCheckAndSend"),
                 mvc.pattern(HttpMethod.POST, "/api/user/emailAuthCheck"),
+                mvc.pattern(HttpMethod.POST, "/api/user/emailAndUseridCheck"),
+                mvc.pattern(HttpMethod.POST, "/api/user/emailCodeAuthCheck"),
+                mvc.pattern(HttpMethod.POST, "/api/user/emailSend"),
+                mvc.pattern(HttpMethod.PUT, "/api/user/updatePassword"),
                 mvc.pattern("/favicon.ico"),
                 mvc.pattern("/error")
         };

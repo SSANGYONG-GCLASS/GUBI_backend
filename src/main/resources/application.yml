@@ -43,6 +43,10 @@ spring:
     secret: ${JWT_SECRET}
     refresh-token-expiration-time: ${refresh-token-expiration-time}
 
+
+  aes:
+    secret: ${AES_SECRET}
+
   mail:
     host: smtp.gmail.com
     username: ${MAIL_ADDRESS}
@@ -53,6 +57,8 @@ spring:
           auth: true       
           starttls:
             enable: true
+
+  
 
 server:
   port: ${SERVER_PORT:8080}

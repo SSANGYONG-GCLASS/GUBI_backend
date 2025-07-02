@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 /**
  * Email을 보낼 때의 템플릿을 관리하는 service로 인증코드, 템플릿 별로 선택할 수 있도록 나눴습니다.
  * 
@@ -17,6 +19,7 @@ public class EmailTemplateService {
 	 * 
 	 * @return 랜덤코드
 	 */
+	@Transactional
 	public String generateAuthCode() {
         Random r = new Random();
         StringBuilder code = new StringBuilder();
@@ -33,6 +36,7 @@ public class EmailTemplateService {
 	 * @param certification_code 랜덤코드
 	 * @return 인증코드가 들어간 이메일 메일
 	 */
+	@Transactional
     public String buildAuthEmailContent(String certification_code) {
         return "발송된 인증코드 : <span style='font-size:14pt; color:red;'>"+certification_code+"</span>"
             .formatted(certification_code);

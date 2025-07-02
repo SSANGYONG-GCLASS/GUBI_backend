@@ -2,8 +2,13 @@ package com.spring.gubi.domain.users;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import com.spring.gubi.config.error.ErrorCode;
 import com.spring.gubi.config.error.exception.BusinessBaseException;
+import com.spring.gubi.dto.carts.UpdateCartCntRequest;
+import com.spring.gubi.dto.users.UpdatePasswordRequest;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -104,6 +109,8 @@ public class User {
     }
     
     
+
+    
     // 최종 로그인 시간을 기록하기 위한 메소드
     public void setLastLoginAt(LocalDateTime lastLoginAt) {
 		this.lastloginat = lastLoginAt;
@@ -113,6 +120,13 @@ public class User {
     // 유저 상태를 IDLE, 또는 ACTIVE로 변경하기 위한 메소드
     public void updateStatus(UserStatus newStatus) {
         this.status = newStatus;
+    }
+    
+    // 비밀번호 변경 메소드
+    public void updatePassword(String newPassword) {
+    	
+        this.password = newPassword;
+        
     }
 
     
