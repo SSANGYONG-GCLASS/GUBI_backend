@@ -4,6 +4,8 @@ import com.spring.gubi.domain.users.Delivery;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class UpdateDeliveryResponse {
@@ -55,10 +57,8 @@ public class UpdateDeliveryResponse {
         this.address = delivery.getAddress().getAddress();
         this.detailAddress = delivery.getAddress().getDetailAddress();
         this.memo = delivery.getMemo();
-        this.isDefault = delivery.getIsDefault().toString(); // 이게 맞나...?
+        this.isDefault = delivery.getIsDefault().toString();
     }
-    
-    
     
 }//end of class...
 

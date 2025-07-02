@@ -38,14 +38,10 @@ public class DeliveryController {
     
     // 배송지 수정
     @PutMapping(value = "/api/delivery")
-    public ResponseEntity<UpdateDeliveryResponse> updateDelivery(@RequestBody UpdateDeliveryRequest request) throws IOException {
+    public ResponseEntity<Map<String, String>> updateDelivery(@RequestBody UpdateDeliveryRequest request) throws IOException {
+        deliveryService.updateDelivery(request);
         
-        UpdateDeliveryResponse response = deliveryService.updateDelivery(request);
-        
-        log.info("수정한 배송지 정보: {}", response);
-        
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-        
+        return ResponseEntity.ok().body(Map.of("message", "배송지가 수정되었습니다."));
     }//end of public ResponseEntity<AddDeliveryResponse> updateDelivery(@RequestBody AddDeliveryRequest request) throws IOException {}...
     
     
