@@ -63,7 +63,7 @@ public class AuthController {
 	 * @param httpResponse 새 액세스 토큰을 담을 응답 객체
 	 * @return 새롭게 발급된 액세스 토큰 정보
 	 */
-    @PostMapping("api/token-refresh")
+    @PostMapping("/api/token-refresh")
     public ResponseEntity<TokenRefreshResponse> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse httpResponse) {
     	return authService.refreshToken(httpResponse, refreshToken);
     }

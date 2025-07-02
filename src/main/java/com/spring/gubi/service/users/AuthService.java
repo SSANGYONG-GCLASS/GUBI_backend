@@ -1,5 +1,7 @@
 package com.spring.gubi.service.users;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +17,7 @@ import com.spring.gubi.config.error.exception.AuthenticationRequiredException;
 import com.spring.gubi.config.error.exception.BusinessBaseException;
 import com.spring.gubi.config.jwt.JwtProvider;
 import com.spring.gubi.domain.users.User;
+import com.spring.gubi.domain.users.UserStatus;
 import com.spring.gubi.dto.jwt.TokenRefreshResponse;
 import com.spring.gubi.dto.users.AuthRequest;
 import com.spring.gubi.dto.users.EmailCheckRequest;
@@ -61,8 +64,6 @@ public class AuthService {
 	 * @param request 클라이언트가 보낸 리프레시 토큰 (쿠키 기반)
 	 * @return 로그인 결과와 함께 액세스 토큰, 리프레시 토큰 정보를 담은 응답 객체
 	 * @throws BusinessBaseException 아이디가 존재하지 않거나 비밀번호가 일치하지 않을 경우 발생
-	 * 
-	 * TODO userId -> userNo 변경
 	 */
 	public LoginUserResponse login(HttpServletResponse httpResponse, LoginUserRequest request) {
 		
@@ -72,6 +73,20 @@ public class AuthService {
 		if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
 	        throw new BusinessBaseException(ErrorCode.INVALID_CREDENTIALS);
 	    }
+		
+		// 휴면 계정 처리
+	    if (user.getStatus() == UserStatus.IDLE) {
+	        throw new BusinessBaseException(ErrorCode.ACCOUNT_DORMANT);
+	    }
+		
+	    // 비밀번호 변경 3개월 처리
+	    if (user.getPasswdupdateday().isBefore(LocalDateTime.now().minusMonths(3))) {
+	    	throw new BusinessBaseException(ErrorCode.PASSWORD_EXPIRED);
+	    }
+	    
+	    // 최종 로그인 날짜 업데이트
+	    user.setLastLoginAt(LocalDateTime.now());
+	    userRepository.save(user);
         
 		Map<String, Object> claims = Map.of("role", user.getRole());
         // token이 생성될때 userid 외에도 유저role, 유저 email 등을 넣기 위한 map 여기서는 role만 저장

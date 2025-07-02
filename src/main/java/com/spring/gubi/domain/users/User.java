@@ -80,6 +80,9 @@ public class User {
 	@Builder.Default
 	private LocalDateTime passwdupdateday = LocalDateTime.now(); // 비밀번호 변경일자
 	
+	@Column(name = "lastloginat")
+	@Builder.Default
+	private LocalDateTime lastloginat = LocalDateTime.now(); // 최종 로그인 일자
 	
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)
@@ -99,4 +102,18 @@ public class User {
 			log.info("{}번 회원 포인트 차감 결과: {}", this.id, this.point);
 		}
     }
+    
+    
+    // 최종 로그인 시간을 기록하기 위한 메소드
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+		this.lastloginat = lastLoginAt;
+    }
+
+
+    // 유저 상태를 IDLE, 또는 ACTIVE로 변경하기 위한 메소드
+    public void updateStatus(UserStatus newStatus) {
+        this.status = newStatus;
+    }
+
+    
 } // end of class...

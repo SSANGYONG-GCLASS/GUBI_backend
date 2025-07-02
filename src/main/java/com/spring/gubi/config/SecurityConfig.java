@@ -63,7 +63,7 @@ public class SecurityConfig {
         // 1. 만약 인증이 필요하지 않는 경우 아래와 같이 url 경로를 입력해준다.
         MvcRequestMatcher[] permitAllWhiteList = {
         		mvc.pattern(HttpMethod.POST, "/api/user/login"),
-        		mvc.pattern(HttpMethod.POST, "api/token-refresh"),
+        		mvc.pattern(HttpMethod.POST, "/api/token-refresh"),
                 mvc.pattern(HttpMethod.POST, "/api/user/register"),
                 mvc.pattern(HttpMethod.POST, "/api/user/emailCheckAndSend"),
                 mvc.pattern(HttpMethod.POST, "/api/user/emailAuthCheck"),
